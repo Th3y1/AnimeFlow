@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NaszeAnime - Platforma Streamingowa</title>
+    <!-- Czcionka w stylu bubble / modern -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome do ikonek w pasku -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        /* Górny pasek nawigacyjny z obrazka */
+        .navbar {
+            background-color: #0b0b0b;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            height: 60px;
+            border-bottom: 2px solid #1f1f1f;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .nav-item {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0 15px;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover {
+            color: #e50914;
+        }
+
+        .nav-item.support-btn {
+            background-color: #8b0000;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            margin-left: auto;
+        }
+
+        .nav-item.support-btn:hover {
+            background-color: #a30000;
+            color: #fff;
+        }
+
+        /* Główna zawartość */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Sekcja Ogłoszeń */
+        .announcements-section {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .announcement-card {
+            background: #222;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .announcement-card img {
+            width: 100px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .announcement-info .date {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        /* Siatka Anime */
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .anime-card {
+            background: #1a1a1a;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            cursor: pointer;
+            border: 1px solid #222;
+        }
+
+        .anime-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .anime-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .anime-title {
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* Panel Admina */
+        #admin-panel {
+            display: none;
+            background: #181818;
+            border: 2px solid #333;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .admin-form-group {
+            margin-bottom: 15px;
+        }
+
+        .admin-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .admin-form-group input, .admin-form-group textarea, .admin-form-group select {
+            width: 100%;
+            padding: 10px;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .admin-btn {
+            background: #e50914;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .admin-btn:hover {
+            background: #f40612;
+        }
+
+        .admin-section-title {
+            margin: 25px 0 15px 0;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Górny pasek nawigacyjny dokladnie jak na dostarczonym obrazku -->
+    <nav class="navbar">
+        <a href="#" class="nav-item"><i class="fa-solid fa-house"></i></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-film"></i> ANIME <i class="fa-solid fa-caret-down"></i></a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-thumbtack"></i> WYSZUKIWARKA</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-calendar-days"></i> SEZONY</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-calendar"></i> KALENDARZ</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-circle-plus"></i> DODAJ</a>
+        <a href="#" class="nav-item" onclick="toggleAdminPanel()"><i class="fa-solid fa-lock"></i> PANEL ADMINA</a>
+        <a href="#" class="nav-item support-btn"><i class="fa-solid fa-thumbs-up"></i> WSPARCIE</a>
+        <a href="#" class="nav-item"><i class="fa-solid fa-envelope"></i> KONTAKT</a>
+    </nav>
+
+    <div class="container">
+        <!-- Katalog Ogłoszeń -->
+        <section class="announcements-section">
+            <h2>📢 Ogłoszenia</h2>
+            <div id="announcements-container">
+                <!-- Ogłoszenia generowane dynamicznie -->
+                <div class="announcement-card">
+                    <img src="https://via.placeholder.com/100x70" alt="Ogłoszenie">
+                    <div class="announcement-info">
+                        <div class="date">Data: 2026-09-18</div>
+                        <h3>Wstępny start platformy!</h3>
+                        <p>Witamy na nowej odsłonie NaszeAnime. Miłego oglądania!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lista Anime -->
+        <h2>Polecane Anime</h2>
+        <div class="anime-grid" id="anime-grid">
+            <!-- Dynamiczne kafelki -->
+            <div class="anime-card">
+                <img src="https://via.placeholder.com/180x250" alt="Anime">
+                <div class="anime-title">Przykładowe Anime</div>
+            </div>
+        </div>
+
+        <!-- PANEL ADMINISTRATORA -->
+        <div id="admin-panel">
+            <h2>Panel Administratora</h2>
+            <p style="color: #888; font-size: 13px; margin-bottom: 20px;">Zarządzaj treścią strony (Dodawanie, Edycja, Usuwanie).</p>
+
+            <!-- Sekcja: Dodawanie / Edycja Seria -->
+            <div class="admin-section-title">Zarządzanie Seriale</div>
+            <div class="admin-form-group">
+                <label>Tytuł Serii</label>
+                <input type="text" id="admin-anime-title" placeholder="Wpisz tytuł anime...">
+            </div>
+            <div class="admin-form-group">
+                <label>Link do Okładki (Zdjęcia)</label>
+                <input type="text" id="admin-anime-img" placeholder="https://...">
+            </div>
+            <button class="admin-btn" onclick="addAnime()">Dodaj Seria</button>
+
+            <!-- Sekcja: Dodawanie Odcinków -->
+            <div class="admin-section-title">Dodawaj Odcinki</div>
+            <div class="admin-form-group">
+                <label>Wybierz Serię</label>
+                <select id="admin-episode-anime-select">
+                    <option value="1">Przykładowe Anime</option>
+                </select>
+            </div>
+            <div class="admin-form-group">
+                <label>Numer Odcinka / Tytuł</label>
+                <input type="text" id="admin-episode-title" placeholder="Odcinek 1">
+            </div>
+            <div class="admin-form-group">
+                <label>Link do Wideo</label>
+                <input type="text" id="admin-episode-url" placeholder="Link do wideo...">
+            </div>
+            <button class="admin-btn" onclick="addEpisode()">Dodaj Odcinek</button>
+
+            <!-- Sekcja: Dodawanie Ogłoszeń z Data i Zdjęciem -->
+            <div class="admin-section-title">Dodaj Ogłoszenie</div>
+            <div class="admin-form-group">
+                <label>Tytuł ogłoszenia</label>
+                <input type="text" id="admin-announcement-title" placeholder="Tytuł...">
+            </div>
+            <div class="admin-form-group">
+                <label>Treść ogłoszenia</label>
+                <textarea id="admin-announcement-content" rows="3" placeholder="Treść..."></textarea>
+            </div>
+            <div class="admin-form-group">
+                <label>Data dodania</label>
+                <input type="date" id="admin-announcement-date">
+            </div>
+            <div class="admin-form-group">
+                <label>Link do zdjęcia ogłoszenia</label>
+                <input type="text" id="admin-announcement-img" placeholder="https://...">
+            </div>
+            <button class="admin-btn" onclick="addAnnouncement()">Opublikuj Ogłoszenie</button>
+        </div>
+    </div>
+
+    <script>
+        // Logika logowania do panelu admina z hasłem 10992
+        function toggleAdminPanel() {
+            const password = prompt("Podaj hasło administratora:");
+            if (password === "10992") {
+                const panel = document.getElementById("admin-panel");
+                panel.style.display = panel.style.display === "block" ? "none" : "block";
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            } else if (password !== null) {
+                alert("Nieprawidłowe hasło!");
+            }
+        }
+
+        // Funkcje symulujące akcje (gotowe pod podpięcie Supabase)
+        function addAnime() {
+            const title = document.getElementById('admin-anime-title').value;
+            const img = document.getElementById('admin-anime-img').value;
+            if(!title) return alert('Wpisz tytuł!');
+            alert('Seria "' + title + '" została dodana! (Za chwicę podepniemy Supabase)');
+        }
+
+        function addEpisode() {
+            alert('Odcinek został dodany pomyślnie!');
+        }
+
+        function addAnnouncement() {
+            const title = document.getElementById('admin-announcement-title').value;
+            if(!title) return alert('Uzupełnij tytuł ogłoszenia!');
+            alert('Ogłoszenie zostało dodane do katalogu ogłoszeń!');
+        }
+    </script>
+</body>
+</html>
