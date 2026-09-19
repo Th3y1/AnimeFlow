@@ -3,148 +3,460 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S4murai Player</title>
-    <!-- Biblioteka Supabase do obsługi bazy danych -->
+    <title>AnimeFlow - Oglądaj Anime Online</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome ikony -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+        :root {
+            --bg-main: #0f0f11;
+            --bg-panel: #18181b;
+            --bg-card: #202025;
+            --accent: #e50914;
+            --accent-hover: #f40612;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border: #2d2d35;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
         }
-        .container {
-            max-width: 800px;
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Górny pasek nawigacyjny */
+        header {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1300px;
             margin: 0 auto;
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        h1 {
-            text-align: center;
-            color: #ff4757;
-        }
-        .player-box {
-            width: 100%;
-            height: 400px;
-            background: #000;
+            padding: 0 20px;
+            height: 70px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            color: #777;
-        }
-        .controls {
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
         }
-        button {
-            background-color: #ff4757;
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            color: var(--text-main);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            width: 250px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            width: 100%;
+            font-size: 13px;
+        }
+
+        .search-box i {
+            color: var(--text-muted);
+        }
+
+        /* Główny układ strony (Siatka + Sidebar) */
+        .wrapper {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        section h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+        }
+
+        /* Siatka Anime w stylu platformy */
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 20px;
+        }
+
+        .anime-card {
+            background: var(--bg-panel);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .anime-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .poster-container {
+            position: relative;
+            width: 100%;
+            height: 240px;
+        }
+
+        .anime-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .episode-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 4px;
+            color: var(--text-main);
+        }
+
+        .anime-info {
+            padding: 12px;
+        }
+
+        .anime-title {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+
+        .anime-genres {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Panel boczny (Sidebar) */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .sidebar-box {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .sidebar-box h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .ranking-num {
+            font-weight: 700;
+            color: var(--accent);
+            width: 15px;
+        }
+
+        /* Panel Administratora */
+        #admin-panel {
+            display: none;
+            background: var(--bg-panel);
+            border: 1px solid var(--accent);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            transition: background 0.2s;
         }
-        button:hover {
-            background-color: #ff6b81;
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
         }
-        input {
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #444;
-            background: #2b2b2b;
-            color: white;
-            width: 80px;
-            text-align: center;
-        }
-        .episode-list {
-            max-height: 200px;
-            overflow-y: auto;
-            border-top: 1px solid #333;
-            padding-top: 10px;
-        }
-        .episode-item {
-            padding: 8px;
-            background: #2b2b2b;
-            margin-bottom: 5px;
-            border-radius: 4px;
+
+        .admin-trigger {
             cursor: pointer;
-        }
-        .episode-item:hover {
-            background: #3d3d3d;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>S4murai Player</h1>
-        
-        <div class="player-box" id="videoContainer">
-            Wybierz odcinek, aby odtworzyć
-        </div>
-
-        <div class="controls">
-            <div>
-                <label for="epInput">Odcinek nr: </label>
-                <input type="number" id="epInput" min="1" value="1">
-                <button onclick="loadEpisode()">Skocz do odcinka</button>
+    <!-- Górny Pasek -->
+    <header>
+        <div class="nav-container">
+            <a href="#" class="logo"><i class="fa-solid fa-play-circle" style="color: var(--accent);"></i> Anime<span>Flow</span></a>
+            <ul class="nav-menu">
+                <li><a href="#" class="active"><i class="fa-solid fa-house"></i> Główna</a></li>
+                <li><a href="#"><i class="fa-solid fa-film"></i> Anime</a></li>
+                <li><a href="#"><i class="fa-solid fa-calendar-days"></i> Kalendarz</a></li>
+                <li class="admin-trigger" onclick="toggleAdminPanel()"><a href="#"><i class="fa-solid fa-lock"></i> Admin</a></li>
+            </ul>
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Szukaj anime...">
             </div>
-            <div id="statusText" style="color: #2ed573; font-size: 14px;">Łączenie z bazą...</div>
         </div>
+    </header>
 
-        <h3>Lista odcinków</h3>
-        <div class="episode-list" id="episodeList">
-            <!-- Tutaj będą ładować się odcinki -->
-        </div>
+    <!-- Zawartość główna -->
+    <div class="wrapper">
+        <main>
+            <section>
+                <h2><i class="fa-solid fa-fire" style="color: var(--accent);"></i> Ostatnio Dodane Serie</h2>
+                <div class="anime-grid" id="anime-grid">
+                    <!-- Dynamiczne kafelki ładowane z Supabase -->
+                    <div style="grid-column: 1 / -1; color: var(--text-muted); text-align: center; padding: 40px;">
+                        Ładowanie danych z chmury Supabase...
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel Administratora (ukryty domyślnie) -->
+            <div id="admin-panel">
+                <h2>Panel Administratora (Hasło: 10992)</h2>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Dodaj nową serię bezpośrednio do bazy danych.</p>
+                
+                <div class="form-group">
+                    <label>Tytuł Anime</label>
+                    <input type="text" id="admin-title" placeholder="np. Solo Leveling">
+                </div>
+                <div class="form-group">
+                    <label>Link do okładki (URL)</label>
+                    <input type="text" id="admin-img" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Status / Odcinek</label>
+                    <input type="text" id="admin-ep" placeholder="np. Odc. 12 / Zakończone">
+                </div>
+                <button class="btn-primary" onclick="addNewAnime()">Dodaj do bazy</button>
+            </div>
+        </main>
+
+        <!-- Pasek boczny -->
+        <aside class="sidebar">
+            <div class="sidebar-box">
+                <h3><i class="fa-solid fa-trophy" style="color: #f1c40f;"></i> Popularne w tym tygodniu</h3>
+                <div class="ranking-item">
+                    <span class="ranking-num">1</span>
+                    <span>Jujutsu Kaisen Season 2</span>
+                </div>
+                <div class="ranking-item">
+                    <span class="ranking-num">2</span>
+                    <span>Solo Leveling</span>
+                </div>
+                <div class="ranking-item">
+                    <span class="ranking-num">3</span>
+                    <span>Mushoku Tensei II</span>
+                </div>
+                <div class="ranking-item">
+                    <span class="ranking-num">4</span>
+                    <span>Demon Slayer</span>
+                </div>
+            </div>
+
+            <div class="sidebar-box">
+                <h3>Status Połączenia</h3>
+                <div id="db-status" style="font-size: 13px; color: #2ed573;">
+                    <i class="fa-solid fa-circle-check"></i> Łączenie z chmurą...
+                </div>
+            </div>
+        </aside>
     </div>
 
     <script>
-        // Konfiguracja połączenia z Supabase
+        // Konfiguracja Supabase
         const SUPABASE_URL = 'https://sodicdqwfxcijakgsdspb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zea9GDv7bDpjDCHgDKNazQ_6240ZBp7';
-
-        // Inicjalizacja klienta Supabase
+        
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const statusText = document.getElementById('statusText');
-
-        // Test połączenia z bazą i pobranie danych
-        async function testConnection() {
-            try {
-                // Przykładowe zapytanie sprawdzające połączenie (zakłada istnienie tabeli 'episodes' lub innej)
-                // Jeśli tabela jeszcze nie istnieje, zmieni się tylko komunikat o statusie
-                const { data, error } = await _supabase.from('episodes').select('*').limit(1);
-                
-                if (error) {
-                    statusText.innerText = "Połączono z Supabase (brak tabeli episodes)";
-                } else {
-                    statusText.innerText = "Połączono pomyślnie z bazą danych!";
-                    console.log("Dane z bazy:", data);
-                }
-            } catch (err) {
-                console.error("Błąd połączenia:", err);
-                statusText.innerText = "Błąd połączenia z bazą";
-                statusText.style.color = "#ff4757";
+        // Funkcja panelu admina na hasło 10992
+        function toggleAdminPanel() {
+            const pass = prompt("Podaj hasło administratora:");
+            if (pass === "10992") {
+                const panel = document.getElementById("admin-panel");
+                panel.style.display = panel.style.display === "block" ? "none" : "block";
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            } else if (pass !== null) {
+                alert("Nieprawidłowe hasło!");
             }
         }
 
-        function loadEpisode() {
-            const epNum = document.getElementById('epInput').value;
-            const container = document.getElementById('videoContainer');
-            container.innerText = `Odtwarzanie odcinka numer: ${epNum}`;
+        // Pobieranie anime z Supabase
+        async function fetchAnime() {
+            const grid = document.getElementById('anime-grid');
+            const status = document.getElementById('db-status');
+
+            const { data, error } = await _supabase.from('anime').select('*');
+
+            if (error) {
+                console.error('Błąd:', error);
+                status.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color: #ff4757;"></i> Błąd bazy danych';
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ff4757;">Błąd połączenia z tabelą 'anime'. Stwórz tabelę w panelu Supabase.</div>';
+                return;
+            }
+
+            status.innerHTML = '<i class="fa-solid fa-circle-check"></i> Połączono z Supabase';
+
+            if (data && data.length > 0) {
+                grid.innerHTML = '';
+                data.forEach(item => {
+                    grid.innerHTML += `
+                        <div class="anime-card">
+                            <div class="poster-container">
+                                <img src="${item.image_url || 'https://via.placeholder.com/170x240'}" alt="${item.title}">
+                                <div class="episode-badge">${item.status || 'Nowość'}</div>
+                            </div>
+                            <div class="anime-info">
+                                <div class="anime-title">${item.title}</div>
+                                <div class="anime-genres">Napisy PL • HD</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Brak dodanych serii w bazie. Użyj panelu admina, aby dodać pierwsze anime!</div>';
+            }
         }
 
-        // Uruchomienie testu połączenia po załadowaniu strony
-        testConnection();
+        // Dodawanie anime do bazy
+        async function addNewAnime() {
+            const title = document.getElementById('admin-title').value;
+            const image_url = document.getElementById('admin-img').value;
+            const status = document.getElementById('admin-ep').value;
+
+            if (!title) return alert('Wpisz tytuł!');
+
+            const { error } = await _supabase.from('anime').insert([{ title, image_url, status }]);
+
+            if (error) {
+                alert('Błąd zapisu: ' + error.message);
+            } else {
+                alert('Dodano pomyślnie!');
+                location.reload();
+            }
+        }
+
+        // Uruchomienie przy starcie
+        fetchAnime();
     </script>
 </body>
 </html>
