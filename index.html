@@ -438,7 +438,7 @@
                     <div class="form-group">
                         <label>Kategoria główna</label>
                         <select id="admin-category">
-                            <!-- Ponad 100 kategorii dynamicznie generowanych w JS lub szeroki wybór -->
+                            <!-- Kategorie generowane dynamicznie przez JS -->
                         </select>
                     </div>
                 </div>
@@ -451,7 +451,6 @@
             <div class="sidebar-box">
                 <h3><i class="fa-solid fa-trophy" style="color: #f1c40f;"></i> Najlepiej Oceniane</h3>
                 <div id="top-rated-list">
-                    <!-- Ładowane dynamicznie z uwzględnieniem ocen 1-10 -->
                     <span style="color: var(--text-muted); font-size: 13px;">Brak ocen</span>
                 </div>
             </div>
@@ -513,26 +512,24 @@
         let allAnimeData = [];
         let currentSelectedAnime = null;
 
-        // Lista 100 kategorii anime do wyboru
         const categoriesList = [
             "Akcja", "Cyberpunk", "Dramat", "Ecchi", "Fantasy", "Harem", "Historyczne", "Horror", "Isekai", "Josei", 
-            "Komedia", "Kryminał", "Magia", "Mecha", "Militaria", "Muzyczne", "Misterium", "Cyberpunk", "Parodia", 
+            "Komedia", "Kryminał", "Magia", "Mecha", "Militaria", "Muzyczne", "Misterium", "Parodia", 
             "Psychologiczne", "Romans", "Samuraje", "Sci-Fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", 
             "Okruchy życia", "Sportowe", "Super Moce", "Supernaturalne", "Thriller", "Tragedia", "Wampiry", "Sztuki Walki", 
-            "Wojskowe", "Gry", "Kosmos", "Mitologia", "Szkoła", "Demony", "Demony", "Dżin", "Postapokalipsa", "Podróże w czasie",
+            "Wojskowe", "Gry", "Kosmos", "Mitologia", "Szkoła", "Demony", "Dżin", "Postapokalipsa", "Podróże w czasie",
             "Superbohaterowie", "Życie szkolne", "Duchy", "Kreskówka", "Zombie", "Wirtualna Rzeczywistość", "Mafia", "Yaoi", "Yuri"
         ];
 
         function populateCategories() {
             const select = document.getElementById('admin-category');
+            if(!select) return;
             select.innerHTML = '';
             categoriesList.sort().forEach(cat => {
                 select.innerHTML += `<option value="${cat}">${cat}</option>`;
             });
         }
-        populateCategories();
 
-        // Bezpieczne hasło z kropkami (type="password" w prompt nie zadziała natywnie w przeglądarce, robimy schludny customowy prompt lub mały input logowania)
         function toggleAdminPanel() {
             const panel = document.getElementById("admin-panel");
             if (panel.style.display === "block") {
@@ -540,8 +537,7 @@
                 return;
             }
 
-            // Schludny modal lub prośba o hasło z kropkami
-            let pass = prompt("Podaj hasło administratora (ukryte znaki nie są wspierane bezpośrednio w standardowym prompt, wpisz uważnie lub użyj panelu):");
+            let pass = prompt("Podaj hasło administratora:");
             if (pass === "10992") {
                 panel.style.display = "block";
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -550,7 +546,6 @@
             }
         }
 
-        // Pobieranie anime z Supabase
         async function fetchAnime() {
             const grid = document.getElementById('anime-grid');
             const status = document.getElementById('db-status');
@@ -573,13 +568,12 @@
         function renderAnime(dataToRender) {
             const grid = document.getElementById('anime-grid');
             if (dataToRender && dataToRender.length > 0) {
-                // Sortowanie po ocenach (najwyżej oceniane pierwsze)
                 dataToRender.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
                 grid.innerHTML = '';
                 dataToRender.forEach(item => {
                     grid.innerHTML += `
-                        <div class="anime-card" onclick='openDetail(${JSON.stringify(item)})'>
+                        <div class="anime-card" onclick="openDetailById('${item.id}')">
                             <div class="poster-container">
                                 <img src="${item.image_url || 'https://via.placeholder.com/170x240'}" alt="${item.title}">
                                 <div class="episode-badge">${item.status || 'Nowość'}</div>
@@ -619,14 +613,12 @@
             });
         }
 
-        // Wyszukiwarka w czasie rzeczywistym
         function searchAnime() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allAnimeData.filter(item => item.title.toLowerCase().includes(query) || (item.category && item.category.toLowerCase().includes(query)));
             renderAnime(filtered);
         }
 
-        // Filtrowanie po kategoriach z menu głównego
         function filterCategory(categoryName) {
             document.getElementById('searchInput').value = '';
             if (categoryName === 'Wszystkie') {
@@ -639,22 +631,14 @@
             }
         }
 
-        // Obsługa kalendarza
         function showCalendar() {
             alert("Kalendarz emisji: Nowe odcinki pojawiają się w poniedziałki, środy i piątki!");
         }
 
-        // Obsługa ogłoszeń (jeśli brak, pokazuje brak ogłoszeń)
         function showAnnouncementsModal() {
-            let announcements = []; // Pusta tablica symulująca brak ogłoszeń
-            if (announcements.length === 0) {
-                alert("Brak aktualnych ogłoszeń.");
-            } else {
-                alert(announcements.join("\n"));
-            }
+            alert("Brak aktualnych ogłoszeń.");
         }
 
-        // Dodawanie nowego anime do Supabase
         async function addNewAnime() {
             const title = document.getElementById('admin-title').value;
             const image_url = document.getElementById('admin-img').value;
@@ -677,8 +661,9 @@
             }
         }
 
-        // Okno szczegółów i komentarzy
-        function openDetail(anime) {
+        function openDetailById(id) {
+            const anime = allAnimeData.find(item => item.id == id);
+            if (!anime) return;
             currentSelectedAnime = anime;
             document.getElementById('modal-title').innerText = anime.title;
             document.getElementById('modal-category').innerText = `Kategoria: ${anime.category || 'Inne'} | Status: ${anime.status || 'W emisji'}`;
@@ -753,8 +738,11 @@
             });
         }
 
-        // Start
-        fetchAnime();
+        // Inicjalizacja po załadowaniu strony
+        document.addEventListener("DOMContentLoaded", () => {
+            populateCategories();
+            fetchAnime();
+        });
     </script>
 </body>
 </html>
