@@ -35,9 +35,16 @@
     <!-- Header / Navbar -->
     <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="showSection('home')">
-                <i class="fa-solid fa-circle-play text-red-600 text-2xl"></i>
-                <span class="text-xl font-bold tracking-wider text-white">Anime <span class="text-red-600">Flow</span></span>
+            
+            <!-- NOWE ODŚWIEŻONE LOGO -->
+            <div class="flex items-center gap-3 cursor-pointer group select-none" onclick="showSection('home')">
+                <div class="relative flex items-center justify-center">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-500 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition duration-300"></div>
+                    <i class="fa-solid fa-circle-play text-red-500 text-2xl relative transition-transform duration-300 group-hover:scale-110"></i>
+                </div>
+                <span class="text-xl font-black tracking-wider text-white">
+                    Anime<span class="bg-gradient-to-r from-red-500 via-rose-500 to-orange-500 bg-clip-text text-transparent group-hover:from-red-400 group-hover:to-orange-400 transition-all duration-300">Flow</span>
+                </span>
             </div>
             
             <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
@@ -133,7 +140,7 @@
                 </form>
             </div>
 
-            <!-- ADMIN DASHBOARD (Ukryte dopóki nie zalogowany) -->
+            <!-- ADMIN DASHBOARD -->
             <div id="admin-dashboard" class="hidden space-y-8">
                 <div class="flex justify-between items-center bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
                     <span class="text-sm text-green-400 font-bold"><i class="fa-solid fa-circle-check"></i> Zalogowano jako Administrator</span>
@@ -258,6 +265,21 @@
 
         let allAnimeData = [];
         let currentEpisodes = [];
+
+        window.onload = () => {
+            fetchAnime();
+            checkAdminAuth();
+        };
+
+        function showSection(sectionId) {
+            const sections = ['home', 'details', 'calendar', 'announcements', 'admin'];
+            sections.forEach(sec => {
+                const el = document.getElementById(`sec-${sec}`);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(`sec-${sectionId}`);
+            if (target) target.classList.remove('hidden');
+        }
 
         async function fetchAnime() {
             const statusDiv = document.getElementById('db-status');
@@ -570,18 +592,18 @@
             if (error) {
                 alert('Błąd dodawania odcinka: ' + error.message);
             } else {
-                alert('Dodano odcinek!');
-                document.getElementById('ep-number').value = episode_number + 1;
+                document.getElementById('ep-number').value = '';
                 document.getElementById('ep-title').value = '';
                 document.getElementById('ep-url').value = '';
                 loadAdminEpisodes();
             }
         }
 
-        async function deleteEpisode(epId) {
-            if (!confirm('Usunąć ten odcinek?')) return;
-            const { error } = await _supabase.from('episodes').delete().eq('id', epId);
-            if (error) alert('Błąd usuwania: ' + error.message);
+        async function deleteEpisode(id) {
+            if (!confirm('Czy na pewno chcesz usunąć ten odcinek?')) return;
+
+            const { error } = await _supabase.from('episodes').delete().eq('id', id);
+            if (error) alert('Błąd usuwania odcinka: ' + error.message);
             else loadAdminEpisodes();
         }
 
@@ -591,25 +613,15 @@
             const content = document.getElementById('ann-content').value;
 
             const { error } = await _supabase.from('ogloszenia').insert([{ title, content }]);
-            if (error) alert('Błąd publikacji: ' + error.message);
-            else {
-                alert('Opublikowano ogłoszenie!');
+            if (error) {
+                alert('Błąd publikacji ogłoszenia: ' + error.message);
+            } else {
+                alert('Ogłoszenie opublikowane!');
                 document.getElementById('ann-title').value = '';
                 document.getElementById('ann-content').value = '';
                 fetchAnnouncements();
             }
         }
-
-        function showSection(name) {
-            ['home', 'details', 'calendar', 'announcements', 'admin'].forEach(sec => {
-                document.getElementById(`sec-${sec}`).classList.add('hidden');
-            });
-            document.getElementById(`sec-${name}`).classList.remove('hidden');
-            if (name === 'admin') checkAdminAuth();
-        }
-
-        // Start
-        fetchAnime();
     </script>
 </body>
 </html>
