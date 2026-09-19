@@ -3,341 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnimeFlow - Platforma Streamingowa</title>
-    <!-- Czcionka w stylu bubble / modern (Quicksand) -->
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome do ikonek w pasku -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase Client SDK -->
+    <title>S4murai Player</title>
+    <!-- Biblioteka Supabase do obsługi bazy danych -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Quicksand', sans-serif;
-        }
-
         body {
+            font-family: Arial, sans-serif;
             background-color: #121212;
             color: #ffffff;
-        }
-
-        /* Górny pasek nawigacyjny */
-        .navbar {
-            background-color: #0b0b0b;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            height: 60px;
-            border-bottom: 2px solid #1f1f1f;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-
-        .nav-item {
-            color: #ffffff;
-            text-decoration: none;
-            padding: 0 15px;
-            font-weight: 700;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .nav-item:hover {
-            color: #e50914;
-        }
-
-        .nav-item.support-btn {
-            background-color: #8b0000;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            padding: 0 25px;
-            margin-left: auto;
-        }
-
-        .nav-item.support-btn:hover {
-            background-color: #a30000;
-            color: #fff;
-        }
-
-        /* Główna zawartość */
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        /* Sekcja Ogłoszeń */
-        .announcements-section {
-            background: #1a1a1a;
+            margin: 0;
             padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            border: 1px solid #2a2a2a;
         }
-
-        .announcement-card {
-            background: #222;
-            padding: 15px;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            padding: 20px;
             border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-
-        .announcement-card img {
-            width: 100px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-        .announcement-info .date {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 5px;
-        }
-
-        /* Siatka Anime */
-        .anime-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-        }
-
-        .anime-card {
-            background: #1a1a1a;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: transform 0.2s;
-            cursor: pointer;
-            border: 1px solid #222;
-        }
-
-        .anime-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .anime-card img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-        }
-
-        .anime-title {
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 700;
+        h1 {
             text-align: center;
+            color: #ff4757;
         }
-
-        /* Panel Admina */
-        #admin-panel {
-            display: none;
-            background: #181818;
-            border: 2px solid #333;
-            padding: 25px;
-            border-radius: 12px;
-            margin-top: 30px;
-        }
-
-        .admin-form-group {
-            margin-bottom: 15px;
-        }
-
-        .admin-form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 13px;
-            color: #aaa;
-        }
-
-        .admin-form-group input, .admin-form-group textarea, .admin-form-group select {
+        .player-box {
             width: 100%;
-            padding: 10px;
-            background: #111;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 6px;
-            outline: none;
+            height: 400px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            color: #777;
         }
-
-        .admin-btn {
-            background: #e50914;
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #ff4757;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-weight: 700;
-            border-radius: 6px;
+            padding: 10px 15px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background 0.2s;
+            font-weight: bold;
         }
-
-        .admin-btn:hover {
-            background: #f40612;
+        button:hover {
+            background-color: #ff6b81;
         }
-
-        .admin-section-title {
-            margin: 25px 0 15px 0;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
+        input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #2b2b2b;
+            color: white;
+            width: 80px;
+            text-align: center;
+        }
+        .episode-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+        .episode-item {
+            padding: 8px;
+            background: #2b2b2b;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .episode-item:hover {
+            background: #3d3d3d;
         }
     </style>
 </head>
 <body>
 
-    <!-- Górny pasek nawigacyjny -->
-    <nav class="navbar">
-        <a href="#" class="nav-item"><i class="fa-solid fa-house"></i></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-film"></i> ANIME <i class="fa-solid fa-caret-down"></i></a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-thumbtack"></i> WYSZUKIWARKA</a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-calendar-days"></i> SEZONY</a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-calendar"></i> KALENDARZ</a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-circle-plus"></i> DODAJ</a>
-        <a href="#" class="nav-item" onclick="toggleAdminPanel()"><i class="fa-solid fa-lock"></i> PANEL ADMINA</a>
-        <a href="#" class="nav-item support-btn"><i class="fa-solid fa-thumbs-up"></i> WSPARCIE</a>
-        <a href="#" class="nav-item"><i class="fa-solid fa-envelope"></i> KONTAKT</a>
-    </nav>
-
     <div class="container">
-        <!-- Katalog Ogłoszeń -->
-        <section class="announcements-section">
-            <h2>📢 Katalog Ogłoszeń</h2>
-            <div id="announcements-container">
-                <div class="announcement-card">
-                    <img src="https://via.placeholder.com/100x70" alt="Ogłoszenie">
-                    <div class="announcement-info">
-                        <div class="date" id="ann-date">Data: 2026-09-19</div>
-                        <h3 id="ann-title">Witaj w AnimeFlow!</h3>
-                        <p id="ann-desc">Platforma działa i łączy się z bazą danych.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Lista Anime -->
-        <h2>Polecane Anime</h2>
-        <div class="anime-grid" id="anime-grid">
-            <!-- Tutaj ładowane są anime z Supabase -->
+        <h1>S4murai Player</h1>
+        
+        <div class="player-box" id="videoContainer">
+            Wybierz odcinek, aby odtworzyć
         </div>
 
-        <!-- PANEL ADMINISTRATORA -->
-        <div id="admin-panel">
-            <h2>Panel Administratora (Hasło: 10992)</h2>
-            <p style="color: #888; font-size: 13px; margin-bottom: 20px;">Wprowadzane dane trafiają bezpośrednio do chmury Supabase.</p>
+        <div class="controls">
+            <div>
+                <label for="epInput">Odcinek nr: </label>
+                <input type="number" id="epInput" min="1" value="1">
+                <button onclick="loadEpisode()">Skocz do odcinka</button>
+            </div>
+            <div id="statusText" style="color: #2ed573; font-size: 14px;">Łączenie z bazą...</div>
+        </div>
 
-            <!-- Sekcja: Dodawanie Serii -->
-            <div class="admin-section-title">Dodaj Serię Anime</div>
-            <div class="admin-form-group">
-                <label>Tytuł Serii</label>
-                <input type="text" id="admin-anime-title" placeholder="Wpisz tytuł...">
-            </div>
-            <div class="admin-form-group">
-                <label>Link do Okładki (Zdjęcia)</label>
-                <input type="text" id="admin-anime-img" placeholder="https://...">
-            </div>
-            <button class="admin-btn" onclick="addNewAnime()">Zapisz Serię w Chmurze</button>
-
-            <!-- Sekcja: Dodawanie Ogłoszeń -->
-            <div class="admin-section-title">Dodaj Ogłoszenie</div>
-            <div class="admin-form-group">
-                <label>Tytuł ogłoszenia</label>
-                <input type="text" id="admin-ann-title" placeholder="Tytuł...">
-            </div>
-            <div class="admin-form-group">
-                <label>Treść</label>
-                <textarea id="admin-ann-desc" rows="3" placeholder="Treść ogłoszenia..."></textarea>
-            </div>
-            <div class="admin-form-group">
-                <label>Data dodania</label>
-                <input type="date" id="admin-ann-date">
-            </div>
-            <div class="admin-form-group">
-                <label>Link do zdjęcia</label>
-                <input type="text" id="admin-ann-img" placeholder="https://...">
-            </div>
-            <button class="admin-btn" onclick="addNewAnnouncement()">Opublikuj Ogłoszenie</button>
+        <h3>Lista odcinków</h3>
+        <div class="episode-list" id="episodeList">
+            <!-- Tutaj będą ładować się odcinki -->
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // 1. KONFIGURACJA SUPABASE (Wklej swoje dane)
-        // ==========================================
-        const SUPABASE_URL = 'TUTAJ_WKLEJ_SWOJ_URL';
-        const SUPABASE_ANON_KEY = 'TUTAJ_WKLEJ_SWOJ_KLUCZ_ANON';
-        
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Konfiguracja połączenia z Supabase
+        const SUPABASE_URL = 'https://sodicdqwfxcijakgsdspb.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_zea9GDv7bDpjDCHgDKNazQ_6240ZBp7';
 
-        // Otwieranie panelu admina na hasło 10992
-        function toggleAdminPanel() {
-            const password = prompt("Podaj hasło administratora:");
-            if (password === "10992") {
-                const panel = document.getElementById("admin-panel");
-                panel.style.display = panel.style.display === "block" ? "none" : "block";
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            } else if (password !== null) {
-                alert("Nieprawidłowe hasło!");
+        // Inicjalizacja klienta Supabase
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const statusText = document.getElementById('statusText');
+
+        // Test połączenia z bazą i pobranie danych
+        async function testConnection() {
+            try {
+                // Przykładowe zapytanie sprawdzające połączenie (zakłada istnienie tabeli 'episodes' lub innej)
+                // Jeśli tabela jeszcze nie istnieje, zmieni się tylko komunikat o statusie
+                const { data, error } = await _supabase.from('episodes').select('*').limit(1);
+                
+                if (error) {
+                    statusText.innerText = "Połączono z Supabase (brak tabeli episodes)";
+                } else {
+                    statusText.innerText = "Połączono pomyślnie z bazą danych!";
+                    console.log("Dane z bazy:", data);
+                }
+            } catch (err) {
+                console.error("Błąd połączenia:", err);
+                statusText.innerText = "Błąd połączenia z bazą";
+                statusText.style.color = "#ff4757";
             }
         }
 
-        // Funkcja dodawania anime do Supabase
-        async function addNewAnime() {
-            const title = document.getElementById('admin-anime-title').value;
-            const image_url = document.getElementById('admin-anime-img').value;
-
-            if(!title) return alert('Wpisz tytuł serii!');
-
-            const { data, error } = await _supabase
-                .from('anime')
-                .insert([{ title, image_url }]);
-
-            if (error) {
-                alert('Błąd zapisu: ' + error.message);
-            } else {
-                alert('Seria dodana pomyślnie do Supabase!');
-                location.reload();
-            }
+        function loadEpisode() {
+            const epNum = document.getElementById('epInput').value;
+            const container = document.getElementById('videoContainer');
+            container.innerText = `Odtwarzanie odcinka numer: ${epNum}`;
         }
 
-        // Funkcja dodawania ogłoszenia do Supabase
-        async function addNewAnnouncement() {
-            const title = document.getElementById('admin-ann-title').value;
-            const content = document.getElementById('admin-ann-desc').value;
-            const date = document.getElementById('admin-ann-date').value;
-            const image_url = document.getElementById('admin-ann-img').value;
-
-            if(!title) return alert('Wpisz tytuł ogłoszenia!');
-
-            const { data, error } = await _supabase
-                .from('announcements')
-                .insert([{ title, content, date, image_url }]);
-
-            if (error) {
-                alert('Błąd zapisu: ' + error.message);
-            } else {
-                alert('Ogłoszenie opublikowane w chmurze!');
-                location.reload();
-            }
-        }
-
-        // Pobieranie danych przy starcie strony (opcjonalnie do rozbudowy)
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log("AnimeFlow załadowane, gotowe do podpięcia tabel Supabase.");
-        });
+        // Uruchomienie testu połączenia po załadowaniu strony
+        testConnection();
     </script>
 </body>
 </html>
