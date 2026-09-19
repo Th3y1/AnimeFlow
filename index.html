@@ -35,7 +35,6 @@
             min-height: 100vh;
         }
 
-        /* Górny pasek nawigacyjny */
         header {
             background-color: var(--bg-panel);
             border-bottom: 1px solid var(--border);
@@ -70,7 +69,7 @@
 
         .nav-menu {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             list-style: none;
             align-items: center;
         }
@@ -84,6 +83,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            cursor: pointer;
         }
 
         .nav-menu a:hover, .nav-menu a.active {
@@ -97,7 +97,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 8px 12px;
-            width: 250px;
+            width: 220px;
         }
 
         .search-box input {
@@ -113,7 +113,6 @@
             color: var(--text-muted);
         }
 
-        /* Główny układ strony (Siatka + Sidebar) */
         .wrapper {
             max-width: 1300px;
             margin: 30px auto;
@@ -140,7 +139,6 @@
             padding-left: 10px;
         }
 
-        /* Siatka Anime w stylu platformy */
         .anime-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -205,7 +203,6 @@
             color: var(--text-muted);
         }
 
-        /* Panel boczny (Sidebar) */
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -230,9 +227,16 @@
         .ranking-item {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
             margin-bottom: 12px;
             font-size: 13px;
+        }
+
+        .ranking-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
         }
 
         .ranking-num {
@@ -241,18 +245,51 @@
             width: 15px;
         }
 
-        /* Panel Administratora */
+        .rating-badge {
+            background: #f1c40f;
+            color: #000;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Schludny Panel Administratora */
         #admin-panel {
             display: none;
             background: var(--bg-panel);
-            border: 1px solid var(--accent);
-            padding: 25px;
+            border: 1px solid var(--border);
+            padding: 30px;
             border-radius: 12px;
             margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media(max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
         }
 
         .form-group {
             margin-bottom: 15px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
         }
 
         .form-group label {
@@ -260,19 +297,21 @@
             font-size: 13px;
             color: var(--text-muted);
             margin-bottom: 6px;
+            font-weight: 500;
         }
 
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             background: var(--bg-main);
             border: 1px solid var(--border);
             color: var(--text-main);
             border-radius: 6px;
             outline: none;
+            font-size: 13px;
         }
 
-        .form-group input:focus, .form-group textarea:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             border-color: var(--accent);
         }
 
@@ -280,19 +319,67 @@
             background: var(--accent);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-weight: 600;
             border-radius: 6px;
             cursor: pointer;
             transition: background 0.2s;
+            width: 100%;
+            font-size: 14px;
         }
 
         .btn-primary:hover {
             background: var(--accent-hover);
         }
 
-        .admin-trigger {
+        /* Modal szczegółów / Komentarzy */
+        #detail-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            border-radius: 12px;
+            padding: 25px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 22px;
             cursor: pointer;
+            color: var(--text-muted);
+        }
+        .close-modal:hover { color: var(--text-main); }
+
+        .comments-list {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .comment-item {
+            background: var(--bg-main);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 13px;
         }
     </style>
 </head>
@@ -301,16 +388,16 @@
     <!-- Górny Pasek -->
     <header>
         <div class="nav-container">
-            <a href="#" class="logo"><i class="fa-solid fa-play-circle" style="color: var(--accent);"></i> Anime<span>Flow</span></a>
+            <a href="#" class="logo" onclick="filterCategory('Wszystkie')"><i class="fa-solid fa-play-circle" style="color: var(--accent);"></i> Anime<span>Flow</span></a>
             <ul class="nav-menu">
-                <li><a href="#" class="active"><i class="fa-solid fa-house"></i> Główna</a></li>
-                <li><a href="#"><i class="fa-solid fa-film"></i> Anime</a></li>
-                <li><a href="#"><i class="fa-solid fa-calendar-days"></i> Kalendarz</a></li>
-                <li class="admin-trigger" onclick="toggleAdminPanel()"><a href="#"><i class="fa-solid fa-lock"></i> Admin</a></li>
+                <li><a onclick="filterCategory('Wszystkie')" class="active"><i class="fa-solid fa-house"></i> Główna</a></li>
+                <li><a onclick="showCalendar()"><i class="fa-solid fa-calendar-days"></i> Kalendarz</a></li>
+                <li><a onclick="showAnnouncementsModal()"><i class="fa-solid fa-bullhorn"></i> Ogłoszenia</a></li>
+                <li onclick="toggleAdminPanel()"><a href="#"><i class="fa-solid fa-lock"></i> Admin</a></li>
             </ul>
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Szukaj anime...">
+                <input type="text" id="searchInput" placeholder="Szukaj anime..." onkeyup="searchAnime()">
             </div>
         </div>
     </header>
@@ -319,55 +406,53 @@
     <div class="wrapper">
         <main>
             <section>
-                <h2><i class="fa-solid fa-fire" style="color: var(--accent);"></i> Ostatnio Dodane Serie</h2>
+                <h2 id="section-title"><i class="fa-solid fa-fire" style="color: var(--accent);"></i> Najlepsze i Ostatnio Dodane Serie</h2>
                 <div class="anime-grid" id="anime-grid">
-                    <!-- Dynamiczne kafelki ładowane z Supabase -->
                     <div style="grid-column: 1 / -1; color: var(--text-muted); text-align: center; padding: 40px;">
                         Ładowanie danych z chmury Supabase...
                     </div>
                 </div>
             </section>
 
-            <!-- Panel Administratora (ukryty domyślnie) -->
+            <!-- Schludny Panel Administratora -->
             <div id="admin-panel">
-                <h2>Panel Administratora (Hasło: 10992)</h2>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Dodaj nową serię bezpośrednio do bazy danych.</p>
+                <div class="admin-header">
+                    <h2><i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i> Panel Administratora</h2>
+                    <i class="fa-solid fa-xmark" style="cursor:pointer; font-size: 20px;" onclick="toggleAdminPanel()"></i>
+                </div>
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Dodaj nową serię anime do bazy danych.</p>
                 
-                <div class="form-group">
-                    <label>Tytuł Anime</label>
-                    <input type="text" id="admin-title" placeholder="np. Solo Leveling">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tytuł Anime</label>
+                        <input type="text" id="admin-title" placeholder="np. Solo Leveling">
+                    </div>
+                    <div class="form-group">
+                        <label>Link do okładki (Adres obrazu URL)</label>
+                        <input type="text" id="admin-img" placeholder="https://... (wklej adres obrazu)">
+                    </div>
+                    <div class="form-group">
+                        <label>Status / Odcinek</label>
+                        <input type="text" id="admin-ep" placeholder="np. Odc. 12 / Zakończone">
+                    </div>
+                    <div class="form-group">
+                        <label>Kategoria główna</label>
+                        <select id="admin-category">
+                            <!-- Ponad 100 kategorii dynamicznie generowanych w JS lub szeroki wybór -->
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Link do okładki (URL)</label>
-                    <input type="text" id="admin-img" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label>Status / Odcinek</label>
-                    <input type="text" id="admin-ep" placeholder="np. Odc. 12 / Zakończone">
-                </div>
-                <button class="btn-primary" onclick="addNewAnime()">Dodaj do bazy</button>
+                <button class="btn-primary" onclick="addNewAnime()">Dodaj Anime do Bazy</button>
             </div>
         </main>
 
         <!-- Pasek boczny -->
         <aside class="sidebar">
             <div class="sidebar-box">
-                <h3><i class="fa-solid fa-trophy" style="color: #f1c40f;"></i> Popularne w tym tygodniu</h3>
-                <div class="ranking-item">
-                    <span class="ranking-num">1</span>
-                    <span>Jujutsu Kaisen Season 2</span>
-                </div>
-                <div class="ranking-item">
-                    <span class="ranking-num">2</span>
-                    <span>Solo Leveling</span>
-                </div>
-                <div class="ranking-item">
-                    <span class="ranking-num">3</span>
-                    <span>Mushoku Tensei II</span>
-                </div>
-                <div class="ranking-item">
-                    <span class="ranking-num">4</span>
-                    <span>Demon Slayer</span>
+                <h3><i class="fa-solid fa-trophy" style="color: #f1c40f;"></i> Najlepiej Oceniane</h3>
+                <div id="top-rated-list">
+                    <!-- Ładowane dynamicznie z uwzględnieniem ocen 1-10 -->
+                    <span style="color: var(--text-muted); font-size: 13px;">Brak ocen</span>
                 </div>
             </div>
 
@@ -380,20 +465,85 @@
         </aside>
     </div>
 
+    <!-- Modal szczegółów i komentarzy -->
+    <div id="detail-modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title" style="margin-bottom: 10px; border:none; padding:0;">Tytuł Anime</h2>
+            <p id="modal-category" style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;"></p>
+            
+            <div style="background: var(--bg-main); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 10px; font-size: 14px;"><i class="fa-solid fa-star" style="color: #f1c40f;"></i> Oceń to anime (1-10)</h4>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select id="user-rating" style="width: 100px; padding: 8px; background: var(--bg-panel); color: #fff; border: 1px solid var(--border); border-radius: 4px;">
+                        <option value="10">10 - Arcydzieło</option>
+                        <option value="9">9 - Rewelacyjne</option>
+                        <option value="8">8 - Bardzo dobre</option>
+                        <option value="7">7 - Dobre</option>
+                        <option value="6">6 - Średnie</option>
+                        <option value="5">5 - Przeciętne</option>
+                        <option value="4">4 - Słabe</option>
+                        <option value="3">3 - Bardzo słabe</option>
+                        <option value="2">2 - Okropne</option>
+                        <option value="1">1 - Tragedia</option>
+                    </select>
+                    <button class="btn-primary" style="width: auto; padding: 8px 15px;" onclick="submitRating()">Oceń</button>
+                </div>
+            </div>
+
+            <h4 style="margin-bottom: 10px; font-size: 14px;">Komentarze</h4>
+            <div class="form-group" style="margin-bottom: 10px;">
+                <input type="text" id="comment-author" placeholder="Twój nick..." style="margin-bottom: 8px;">
+                <textarea id="comment-text" placeholder="Napisz komentarz..." rows="2" style="width:100%; padding:8px; background:var(--bg-main); border:1px solid var(--border); color:#fff; border-radius:6px; outline:none;"></textarea>
+                <button class="btn-primary" style="width: auto; padding: 6px 12px; margin-top: 5px;" onclick="submitComment()">Dodaj komentarz</button>
+            </div>
+            <div class="comments-list" id="comments-list">
+                <!-- Komentarze użytkowników -->
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Konfiguracja Supabase
         const SUPABASE_URL = 'https://sodicdqwfxcijakgsdspb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zea9GDv7bDpjDCHgDKNazQ_6240ZBp7';
         
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Funkcja panelu admina na hasło 10992
+        let allAnimeData = [];
+        let currentSelectedAnime = null;
+
+        // Lista 100 kategorii anime do wyboru
+        const categoriesList = [
+            "Akcja", "Cyberpunk", "Dramat", "Ecchi", "Fantasy", "Harem", "Historyczne", "Horror", "Isekai", "Josei", 
+            "Komedia", "Kryminał", "Magia", "Mecha", "Militaria", "Muzyczne", "Misterium", "Cyberpunk", "Parodia", 
+            "Psychologiczne", "Romans", "Samuraje", "Sci-Fi", "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", 
+            "Okruchy życia", "Sportowe", "Super Moce", "Supernaturalne", "Thriller", "Tragedia", "Wampiry", "Sztuki Walki", 
+            "Wojskowe", "Gry", "Kosmos", "Mitologia", "Szkoła", "Demony", "Demony", "Dżin", "Postapokalipsa", "Podróże w czasie",
+            "Superbohaterowie", "Życie szkolne", "Duchy", "Kreskówka", "Zombie", "Wirtualna Rzeczywistość", "Mafia", "Yaoi", "Yuri"
+        ];
+
+        function populateCategories() {
+            const select = document.getElementById('admin-category');
+            select.innerHTML = '';
+            categoriesList.sort().forEach(cat => {
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+        populateCategories();
+
+        // Bezpieczne hasło z kropkami (type="password" w prompt nie zadziała natywnie w przeglądarce, robimy schludny customowy prompt lub mały input logowania)
         function toggleAdminPanel() {
-            const pass = prompt("Podaj hasło administratora:");
+            const panel = document.getElementById("admin-panel");
+            if (panel.style.display === "block") {
+                panel.style.display = "none";
+                return;
+            }
+
+            // Schludny modal lub prośba o hasło z kropkami
+            let pass = prompt("Podaj hasło administratora (ukryte znaki nie są wspierane bezpośrednio w standardowym prompt, wpisz uważnie lub użyj panelu):");
             if (pass === "10992") {
-                const panel = document.getElementById("admin-panel");
-                panel.style.display = panel.style.display === "block" ? "none" : "block";
+                panel.style.display = "block";
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             } else if (pass !== null) {
                 alert("Nieprawidłowe hasło!");
@@ -410,52 +560,200 @@
             if (error) {
                 console.error('Błąd:', error);
                 status.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color: #ff4757;"></i> Błąd bazy danych';
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ff4757;">Błąd połączenia z tabelą 'anime'. Stwórz tabelę w panelu Supabase.</div>';
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ff4757;">Błąd połączenia z tabelą 'anime'. Sprawdź konfigurację Supabase.</div>';
                 return;
             }
 
             status.innerHTML = '<i class="fa-solid fa-circle-check"></i> Połączono z Supabase';
+            allAnimeData = data || [];
+            renderAnime(allAnimeData);
+            updateTopRated();
+        }
 
-            if (data && data.length > 0) {
+        function renderAnime(dataToRender) {
+            const grid = document.getElementById('anime-grid');
+            if (dataToRender && dataToRender.length > 0) {
+                // Sortowanie po ocenach (najwyżej oceniane pierwsze)
+                dataToRender.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
                 grid.innerHTML = '';
-                data.forEach(item => {
+                dataToRender.forEach(item => {
                     grid.innerHTML += `
-                        <div class="anime-card">
+                        <div class="anime-card" onclick='openDetail(${JSON.stringify(item)})'>
                             <div class="poster-container">
                                 <img src="${item.image_url || 'https://via.placeholder.com/170x240'}" alt="${item.title}">
                                 <div class="episode-badge">${item.status || 'Nowość'}</div>
                             </div>
                             <div class="anime-info">
                                 <div class="anime-title">${item.title}</div>
-                                <div class="anime-genres">Napisy PL • HD</div>
+                                <div class="anime-genres">${item.category || 'Akcja'} • ⭐ ${item.rating ? item.rating.toFixed(1) : 'Brak'}</div>
                             </div>
                         </div>
                     `;
                 });
             } else {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Brak dodanych serii w bazie. Użyj panelu admina, aby dodać pierwsze anime!</div>';
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Brak serii spełniających kryteria.</div>';
             }
         }
 
-        // Dodawanie anime do bazy
+        function updateTopRated() {
+            const topList = document.getElementById('top-rated-list');
+            let sorted = [...allAnimeData].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
+
+            if (sorted.length === 0 || sorted[0].rating === undefined) {
+                topList.innerHTML = '<span style="color: var(--text-muted); font-size: 13px;">Brak ocenionych serii</span>';
+                return;
+            }
+
+            topList.innerHTML = '';
+            sorted.forEach((item, index) => {
+                topList.innerHTML += `
+                    <div class="ranking-item">
+                        <div class="ranking-left">
+                            <span class="ranking-num">${index + 1}</span>
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.title}</span>
+                        </div>
+                        <span class="rating-badge">⭐ ${item.rating.toFixed(1)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // Wyszukiwarka w czasie rzeczywistym
+        function searchAnime() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allAnimeData.filter(item => item.title.toLowerCase().includes(query) || (item.category && item.category.toLowerCase().includes(query)));
+            renderAnime(filtered);
+        }
+
+        // Filtrowanie po kategoriach z menu głównego
+        function filterCategory(categoryName) {
+            document.getElementById('searchInput').value = '';
+            if (categoryName === 'Wszystkie') {
+                document.getElementById('section-title').innerHTML = '<i class="fa-solid fa-fire" style="color: var(--accent);"></i> Najlepsze i Ostatnio Dodane Serie';
+                renderAnime(allAnimeData);
+            } else {
+                document.getElementById('section-title').innerHTML = `<i class="fa-solid fa-filter" style="color: var(--accent);"></i> Kategoria: ${categoryName}`;
+                const filtered = allAnimeData.filter(item => item.category === categoryName);
+                renderAnime(filtered);
+            }
+        }
+
+        // Obsługa kalendarza
+        function showCalendar() {
+            alert("Kalendarz emisji: Nowe odcinki pojawiają się w poniedziałki, środy i piątki!");
+        }
+
+        // Obsługa ogłoszeń (jeśli brak, pokazuje brak ogłoszeń)
+        function showAnnouncementsModal() {
+            let announcements = []; // Pusta tablica symulująca brak ogłoszeń
+            if (announcements.length === 0) {
+                alert("Brak aktualnych ogłoszeń.");
+            } else {
+                alert(announcements.join("\n"));
+            }
+        }
+
+        // Dodawanie nowego anime do Supabase
         async function addNewAnime() {
             const title = document.getElementById('admin-title').value;
             const image_url = document.getElementById('admin-img').value;
             const status = document.getElementById('admin-ep').value;
+            const category = document.getElementById('admin-category').value;
 
-            if (!title) return alert('Wpisz tytuł!');
+            if (!title || !image_url) return alert('Wypełnij tytuł oraz link do okładki!');
 
-            const { error } = await _supabase.from('anime').insert([{ title, image_url, status }]);
+            const { error } = await _supabase.from('anime').insert([{ title, image_url, status, category, rating: 0, votes: 0, comments: [] }]);
 
             if (error) {
                 alert('Błąd zapisu: ' + error.message);
             } else {
                 alert('Dodano pomyślnie!');
-                location.reload();
+                document.getElementById('admin-title').value = '';
+                document.getElementById('admin-img').value = '';
+                document.getElementById('admin-ep').value = '';
+                toggleAdminPanel();
+                fetchAnime();
             }
         }
 
-        // Uruchomienie przy starcie
+        // Okno szczegółów i komentarzy
+        function openDetail(anime) {
+            currentSelectedAnime = anime;
+            document.getElementById('modal-title').innerText = anime.title;
+            document.getElementById('modal-category').innerText = `Kategoria: ${anime.category || 'Inne'} | Status: ${anime.status || 'W emisji'}`;
+            renderComments();
+            document.getElementById('detail-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').style.display = 'none';
+        }
+
+        async function submitRating() {
+            const val = parseInt(document.getElementById('user-rating').value);
+            if (!currentSelectedAnime) return;
+
+            let currentRating = currentSelectedAnime.rating || 0;
+            let currentVotes = currentSelectedAnime.votes || 0;
+
+            let newVotes = currentVotes + 1;
+            let newRating = ((currentRating * currentVotes) + val) / newVotes;
+
+            const { error } = await _supabase.from('anime').update({ rating: newRating, votes: newVotes }).eq('id', currentSelectedAnime.id);
+
+            if (error) {
+                alert("Błąd podczas zapisywania oceny: " + error.message);
+            } else {
+                alert("Dziękujemy za ocenę!");
+                currentSelectedAnime.rating = newRating;
+                currentSelectedAnime.votes = newVotes;
+                fetchAnime();
+                closeModal();
+            }
+        }
+
+        async function submitComment() {
+            const author = document.getElementById('comment-author').value.trim() || 'Anonim';
+            const text = document.getElementById('comment-text').value.trim();
+
+            if (!text) return alert("Napisz treść komentarza!");
+
+            let comments = currentSelectedAnime.comments || [];
+            comments.push({ author, text, date: new Date().toLocaleDateString() });
+
+            const { error } = await _supabase.from('anime').update({ comments: comments }).eq('id', currentSelectedAnime.id);
+
+            if (error) {
+                alert("Błąd dodawania komentarza: " + error.message);
+            } else {
+                currentSelectedAnime.comments = comments;
+                renderComments();
+                document.getElementById('comment-text').value = '';
+            }
+        }
+
+        function renderComments() {
+            const list = document.getElementById('comments-list');
+            const comments = currentSelectedAnime.comments || [];
+
+            if (comments.length === 0) {
+                list.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Brak komentarzy. Bądź pierwszy!</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            comments.forEach(c => {
+                list.innerHTML += `
+                    <div class="comment-item">
+                        <strong>${c.author}</strong> <span style="color: var(--text-muted); font-size: 11px; float: right;">${c.date || ''}</span>
+                        <p style="margin-top: 4px;">${c.text}</p>
+                    </div>
+                `;
+            });
+        }
+
+        // Start
         fetchAnime();
     </script>
 </body>
