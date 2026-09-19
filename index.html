@@ -105,7 +105,9 @@
         <!-- SECTION: Calendar -->
         <section id="sec-calendar" class="hidden">
             <h2 class="text-xl font-bold mb-4 border-l-4 border-red-600 pl-3">Harmonogram Emisji</h2>
-            <p class="text-zinc-400 text-sm">Nowe odcinki pojawiają się w tygodniowych odstępach.</p>
+            <div id="calendar-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Injected via JS -->
+            </div>
         </section>
 
         <!-- SECTION: Announcements -->
@@ -119,90 +121,124 @@
         <!-- SECTION: Admin Panel -->
         <section id="sec-admin" class="hidden">
             <h2 class="text-xl font-bold mb-6 border-l-4 border-red-600 pl-3">Panel Administratora</h2>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Lewa kolumna: Formularz Dodawania / Edycji Serialu -->
-                <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
-                    <h3 id="admin-form-title" class="font-bold text-lg mb-4 text-white">Dodaj nowe Anime</h3>
-                    <form id="add-anime-form" onsubmit="handleSaveAnime(event)" class="space-y-4 text-sm">
-                        <input type="hidden" id="adm-id">
-                        <div>
-                            <label class="block text-zinc-400 mb-1">Tytuł</label>
-                            <input type="text" id="adm-title" required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
-                        </div>
-                        <div>
-                            <label class="block text-zinc-400 mb-1">URL Okładki (image_url)</label>
-                            <input type="url" id="adm-image" required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
+
+            <!-- ADMIN AUTH LOCK -->
+            <div id="admin-auth" class="max-w-md mx-auto bg-zinc-900 border border-zinc-800 p-6 rounded-xl text-center space-y-4">
+                <i class="fa-solid fa-user-shield text-red-600 text-4xl"></i>
+                <h3 class="text-lg font-bold text-white">Wymagane Logowanie</h3>
+                <p class="text-xs text-zinc-400">Podaj hasło administratora, aby uzyskać dostęp do zarządzania portalem.</p>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-3">
+                    <input type="password" id="admin-pass-input" placeholder="Wpisz hasło..." required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white text-sm focus:outline-none focus:border-red-600">
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded text-sm transition-colors">Zaloguj się</button>
+                </form>
+            </div>
+
+            <!-- ADMIN DASHBOARD (Ukryte dopóki nie zalogowany) -->
+            <div id="admin-dashboard" class="hidden space-y-8">
+                <div class="flex justify-between items-center bg-zinc-900 border border-zinc-800 p-4 rounded-xl">
+                    <span class="text-sm text-green-400 font-bold"><i class="fa-solid fa-circle-check"></i> Zalogowano jako Administrator</span>
+                    <button onclick="adminLogout()" class="bg-zinc-800 hover:bg-zinc-700 text-xs px-3 py-1.5 rounded text-white"><i class="fa-solid fa-right-from-bracket"></i> Wyloguj</button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 1. Dodawanie/Edycja Anime -->
+                    <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
+                        <h3 id="admin-form-title" class="font-bold text-lg mb-4 text-white">Dodaj nowe Anime</h3>
+                        <form id="add-anime-form" onsubmit="handleSaveAnime(event)" class="space-y-4 text-sm">
+                            <input type="hidden" id="adm-id">
                             <div>
-                                <label class="block text-zinc-400 mb-1">Status</label>
-                                <input type="text" id="adm-status" placeholder="np. Wychodzi / Zakończone" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                                <label class="block text-zinc-400 mb-1">Tytuł</label>
+                                <input type="text" id="adm-title" required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
                             </div>
                             <div>
-                                <label class="block text-zinc-400 mb-1">Kategoria</label>
-                                <input type="text" id="adm-category" placeholder="np. Akcja, Fantasy" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                                <label class="block text-zinc-400 mb-1">URL Okładki (image_url)</label>
+                                <input type="url" id="adm-image" required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-zinc-400 mb-1">Status</label>
+                                    <input type="text" id="adm-status" placeholder="np. Wychodzi / Zakończone" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-zinc-400 mb-1">Kategoria</label>
+                                    <input type="text" id="adm-category" placeholder="np. Akcja, Fantasy" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-zinc-400 mb-1">Ocena (1 - 10)</label>
+                                <input type="number" step="0.1" id="adm-rating" min="0" max="10" placeholder="8.5" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 font-bold py-2 px-4 rounded text-white transition-colors flex-1">Zapisz Anime</button>
+                                <button type="button" onclick="resetAdminForm()" class="bg-zinc-700 hover:bg-zinc-600 font-bold py-2 px-4 rounded text-white transition-colors">Anuluj</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 2. Dodawanie Odcinków -->
+                    <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl space-y-4">
+                        <h3 class="font-bold text-lg text-white">Zarządzanie Odcinkami</h3>
+                        <div>
+                            <label class="block text-zinc-400 mb-1 text-sm">Wybierz Serial</label>
+                            <select id="admin-anime-select" onchange="loadAdminEpisodes()" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white text-sm">
+                                <option value="">-- Wybierz Anime --</option>
+                            </select>
+                        </div>
+
+                        <div id="episode-form-container" class="hidden border-t border-zinc-800 pt-4 mt-4 space-y-4">
+                            <h4 class="font-bold text-sm text-zinc-300">Dodaj Nowy Odcinek</h4>
+                            <form onsubmit="handleAddEpisode(event)" class="space-y-3 text-sm">
+                                <div class="grid grid-cols-3 gap-2">
+                                    <div>
+                                        <label class="block text-zinc-400 text-xs mb-1">Nr odcinka</label>
+                                        <input type="number" id="ep-number" required min="1" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-zinc-400 text-xs mb-1">Tytuł odcinka (opcjonalnie)</label>
+                                        <input type="text" id="ep-title" placeholder="np. Początek" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-zinc-400 text-xs mb-1">Link do Wideo (mp4 / iframe / embed)</label>
+                                    <input type="text" id="ep-url" required placeholder="https://..." class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                                </div>
+                                <button type="submit" class="bg-green-600 hover:bg-green-700 font-bold py-1.5 px-3 rounded text-white text-xs transition-colors w-full">
+                                    Dodaj Odcinek
+                                </button>
+                            </form>
+
+                            <div class="border-t border-zinc-800 pt-3">
+                                <h4 class="font-bold text-sm text-zinc-300 mb-2">Lista Odcinków</h4>
+                                <div id="admin-episodes-list" class="space-y-2 max-h-48 overflow-y-auto text-xs">
+                                    <p class="text-zinc-500">Wybierz anime, aby zobaczyć odcinki.</p>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- 3. Zarządzanie Ogłoszeniami -->
+                <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl space-y-4">
+                    <h3 class="font-bold text-lg text-white">Dodaj Ogłoszenie</h3>
+                    <form onsubmit="handleAddAnnouncement(event)" class="space-y-3 text-sm">
                         <div>
-                            <label class="block text-zinc-400 mb-1">Ocena (1 - 10)</label>
-                            <input type="number" step="0.1" id="adm-rating" min="0" max="10" placeholder="8.5" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                            <label class="block text-zinc-400 text-xs mb-1">Tytuł Ogłoszenia</label>
+                            <input type="text" id="ann-title" required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
                         </div>
-                        <div class="flex gap-2">
-                            <button type="submit" class="bg-red-600 hover:bg-red-700 font-bold py-2 px-4 rounded text-white transition-colors flex-1">Zapisz Anime</button>
-                            <button type="button" onclick="resetAdminForm()" class="bg-zinc-700 hover:bg-zinc-600 font-bold py-2 px-4 rounded text-white transition-colors">Anuluj</button>
+                        <div>
+                            <label class="block text-zinc-400 text-xs mb-1">Treść</label>
+                            <textarea id="ann-content" required rows="3" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white"></textarea>
                         </div>
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 font-bold py-2 px-4 rounded text-white text-xs transition-colors">Opublikuj Ogłoszenie</button>
                     </form>
                 </div>
 
-                <!-- Prawa kolumna: Zarządzanie Odcinkami -->
-                <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl space-y-4">
-                    <h3 class="font-bold text-lg text-white">Zarządzanie Odcinkami</h3>
-                    
-                    <div>
-                        <label class="block text-zinc-400 mb-1 text-sm">Wybierz Serial</label>
-                        <select id="admin-anime-select" onchange="loadAdminEpisodes()" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white text-sm">
-                            <option value="">-- Wybierz Anime --</option>
-                        </select>
+                <!-- 4. Lista Seriali (Edycja / Usuwanie) -->
+                <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
+                    <h3 class="font-bold text-lg mb-4 text-white">Lista Seriali w Bazie</h3>
+                    <div id="admin-anime-list" class="divide-y divide-zinc-800 text-sm">
+                        <!-- Dynamicznie ładowana lista -->
                     </div>
-
-                    <div id="episode-form-container" class="hidden border-t border-zinc-800 pt-4 mt-4 space-y-4">
-                        <h4 class="font-bold text-sm text-zinc-300">Dodaj Nowy Odcinek</h4>
-                        <form onsubmit="handleAddEpisode(event)" class="space-y-3 text-sm">
-                            <div class="grid grid-cols-3 gap-2">
-                                <div>
-                                    <label class="block text-zinc-400 text-xs mb-1">Nr odcinka</label>
-                                    <input type="number" id="ep-number" required min="1" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
-                                </div>
-                                <div class="col-span-2">
-                                    <label class="block text-zinc-400 text-xs mb-1">Tytuł odcinka (opcjonalnie)</label>
-                                    <input type="text" id="ep-title" placeholder="np. Początek" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-zinc-400 text-xs mb-1">Link do Wideo (mp4 / iframe / embed)</label>
-                                <input type="text" id="ep-url" required placeholder="https://..." class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
-                            </div>
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 font-bold py-1.5 px-3 rounded text-white text-xs transition-colors w-full">
-                                Dodaj Odcinek
-                            </button>
-                        </form>
-
-                        <div class="border-t border-zinc-800 pt-3">
-                            <h4 class="font-bold text-sm text-zinc-300 mb-2">Lista Odcinków</h4>
-                            <div id="admin-episodes-list" class="space-y-2 max-h-48 overflow-y-auto text-xs">
-                                <p class="text-zinc-500">Wybierz anime, aby zobaczyć odcinki.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lista Istniejących Anime (Zarządzanie / Edycja) -->
-            <div class="mt-8 bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
-                <h3 class="font-bold text-lg mb-4 text-white">Lista Seriali w Bazie</h3>
-                <div id="admin-anime-list" class="divide-y divide-zinc-800 text-sm">
-                    <!-- Dynamicznie ładowana lista -->
                 </div>
             </div>
         </section>
@@ -213,6 +249,9 @@
     <script>
         const SUPABASE_URL = 'https://sodicdqwfxcjakgsdspb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zea9GDv7bDpjDCHgDKNazQ_6240ZBp7';
+        
+        // ZABEZPIECZENIE: Hasło do panelu admina
+        const ADMIN_PASSWORD = 'admin123'; 
 
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -229,8 +268,10 @@
                 allAnimeData = anime || [];
                 renderAnimeGrid(allAnimeData);
                 renderTopRated(allAnimeData);
+                renderCalendar(allAnimeData);
                 populateAdminSelect();
                 renderAdminAnimeList();
+                fetchAnnouncements();
                 
                 statusDiv.innerHTML = `<i class="fa-solid fa-circle-check text-green-500"></i> Połączono z Supabase`;
                 statusDiv.className = "text-xs flex items-center gap-2 text-green-500";
@@ -238,11 +279,6 @@
                 console.error("Błąd połączenia z Supabase:", err);
                 statusDiv.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500"></i> Błąd bazy danych`;
                 statusDiv.className = "text-xs flex items-center gap-2 text-red-500";
-                
-                document.getElementById('anime-grid').innerHTML = `
-                    <div class="col-span-full text-center py-8 text-red-500 text-sm">
-                        Błąd połączenia z tabelą 'anime'. Sprawdź konfigurację RLS lub nazwę tabeli.
-                    </div>`;
             }
         }
 
@@ -284,11 +320,50 @@
             `).join('');
         }
 
+        function renderCalendar(list) {
+            const cal = document.getElementById('calendar-list');
+            const ongoing = list.filter(a => a.status && a.status.toLowerCase().includes('wychodzi'));
+            
+            if(ongoing.length === 0) {
+                cal.innerHTML = `<p class="text-zinc-500 text-sm col-span-full">Brak aktualnie wychodzących serii.</p>`;
+                return;
+            }
+
+            cal.innerHTML = ongoing.map(a => `
+                <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl flex items-center gap-4">
+                    <img src="${a.image_url}" class="w-12 h-16 object-cover rounded">
+                    <div>
+                        <h4 class="font-bold text-white text-sm">${a.title}</h4>
+                        <span class="text-xs text-green-400 bg-green-950 px-2 py-0.5 rounded border border-green-800 mt-1 inline-block">Wychodzi</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function fetchAnnouncements() {
+            const container = document.getElementById('announcements-list');
+            let { data: announcements, error } = await _supabase.from('ogloszenia').select('*').order('created_at', { ascending: false });
+            
+            if (error || !announcements || announcements.length === 0) {
+                container.innerHTML = `<div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 text-sm text-zinc-400">Brak nowych ogłoszeń.</div>`;
+                return;
+            }
+
+            container.innerHTML = announcements.map(ann => `
+                <div class="bg-zinc-900 p-5 rounded-xl border border-zinc-800 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-white">${ann.title}</h3>
+                        <span class="text-xs text-zinc-500">${new Date(ann.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p class="text-sm text-zinc-300">${ann.content}</p>
+                </div>
+            `).join('');
+        }
+
         async function openAnimeDetails(id) {
             const item = allAnimeData.find(a => a.id === id);
             if (!item) return;
 
-            // Pobierz odcinki dla danego anime
             let { data: episodes } = await _supabase.from('episodes').select('*').eq('anime_id', id).order('episode_number', { ascending: true });
             episodes = episodes || [];
 
@@ -306,7 +381,6 @@
                     </div>
                 </div>
 
-                <!-- Odtwarzacz Wideo -->
                 <div class="space-y-4">
                     <h3 class="font-bold text-lg text-white border-l-4 border-red-600 pl-3">Odtwarzacz Wideo</h3>
                     <div id="video-container" class="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center border border-zinc-800">
@@ -341,7 +415,36 @@
             renderAnimeGrid(filtered);
         }
 
-        // --- PANEL ADMINISTRATORA ---
+        // --- ZABEZPIECZENIE & LOGOWANIE ADMINA ---
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const input = document.getElementById('admin-pass-input').value;
+            if (input === ADMIN_PASSWORD) {
+                sessionStorage.setItem('isAdminLoggedIn', 'true');
+                checkAdminAuth();
+            } else {
+                alert('Błędne hasło administratora!');
+            }
+        }
+
+        function checkAdminAuth() {
+            const isLoggedIn = sessionStorage.getItem('isAdminLoggedIn') === 'true';
+            if (isLoggedIn) {
+                document.getElementById('admin-auth').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+            } else {
+                document.getElementById('admin-auth').classList.remove('hidden');
+                document.getElementById('admin-dashboard').classList.add('hidden');
+            }
+        }
+
+        function adminLogout() {
+            sessionStorage.removeItem('isAdminLoggedIn');
+            checkAdminAuth();
+        }
+
+        // --- PANEL ADMINISTRATORA (FUNKCJE) ---
 
         function populateAdminSelect() {
             const select = document.getElementById('admin-anime-select');
@@ -383,12 +486,10 @@
             const rating = parseFloat(document.getElementById('adm-rating').value) || null;
 
             if (id) {
-                // UPDATE
                 const { error } = await _supabase.from('anime').update({ title, image_url, status, category, rating }).eq('id', id);
                 if (error) alert('Błąd edycji: ' + error.message);
                 else alert('Zaktualizowano pomyślnie!');
             } else {
-                // INSERT
                 const { error } = await _supabase.from('anime').insert([{ title, image_url, status, category, rating }]);
                 if (error) alert('Błąd dodawania: ' + error.message);
                 else alert('Dodano pomyślnie!');
@@ -418,10 +519,7 @@
 
             const { error } = await _supabase.from('anime').delete().eq('id', id);
             if (error) alert('Błąd usuwania: ' + error.message);
-            else {
-                alert('Usunięto pomyślnie!');
-                fetchAnime();
-            }
+            else fetchAnime();
         }
 
         function resetAdminForm() {
@@ -430,7 +528,6 @@
             document.getElementById('admin-form-title').innerText = 'Dodaj nowe Anime';
         }
 
-        // Zarządzanie odcinkami w panelu admina
         async function loadAdminEpisodes() {
             const animeId = document.getElementById('admin-anime-select').value;
             const container = document.getElementById('episode-form-container');
@@ -488,11 +585,27 @@
             else loadAdminEpisodes();
         }
 
+        async function handleAddAnnouncement(e) {
+            e.preventDefault();
+            const title = document.getElementById('ann-title').value;
+            const content = document.getElementById('ann-content').value;
+
+            const { error } = await _supabase.from('ogloszenia').insert([{ title, content }]);
+            if (error) alert('Błąd publikacji: ' + error.message);
+            else {
+                alert('Opublikowano ogłoszenie!');
+                document.getElementById('ann-title').value = '';
+                document.getElementById('ann-content').value = '';
+                fetchAnnouncements();
+            }
+        }
+
         function showSection(name) {
             ['home', 'details', 'calendar', 'announcements', 'admin'].forEach(sec => {
                 document.getElementById(`sec-${sec}`).classList.add('hidden');
             });
             document.getElementById(`sec-${name}`).classList.remove('hidden');
+            if (name === 'admin') checkAdminAuth();
         }
 
         // Start
