@@ -10,11 +10,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Fugaz One (Styl Street / Graffiti) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fugaz+One&display=swap" rel="stylesheet">
+
     <style>
         body {
             background-color: #0f0f12;
             color: #e2e8f0;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        /* Styl czcionki i cienia dla logo Graffiti */
+        .font-graffiti {
+            font-family: 'Fugaz One', cursive, sans-serif;
+        }
+        .graffiti-text-shadow {
+            text-shadow: 2px 3px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000;
         }
         .anime-card {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -36,14 +48,17 @@
     <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             
-            <!-- NOWE ODŚWIEŻONE LOGO -->
+            <!-- NOWE LOGO W STYLU GRAFFITI -->
             <div class="flex items-center gap-3 cursor-pointer group select-none" onclick="showSection('home')">
+                <!-- Ikona Play z neonową poświatą i rotacją -->
                 <div class="relative flex items-center justify-center">
-                    <div class="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-500 rounded-full blur-sm opacity-60 group-hover:opacity-100 transition duration-300"></div>
-                    <i class="fa-solid fa-circle-play text-red-500 text-2xl relative transition-transform duration-300 group-hover:scale-110"></i>
+                    <div class="absolute -inset-1 bg-gradient-to-tr from-red-600 via-rose-500 to-orange-500 rounded-full blur-md opacity-80 group-hover:opacity-100 transition duration-300"></div>
+                    <i class="fa-solid fa-circle-play text-red-500 text-3xl relative transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"></i>
                 </div>
-                <span class="text-xl font-black tracking-wider text-white">
-                    Anime<span class="bg-gradient-to-r from-red-500 via-rose-500 to-orange-500 bg-clip-text text-transparent group-hover:from-red-400 group-hover:to-orange-400 transition-all duration-300">Flow</span>
+                
+                <!-- Napis AnimeFlow z efektem ulicznym -->
+                <span class="font-graffiti text-2xl tracking-wider text-white italic graffiti-text-shadow transition-transform duration-300 group-hover:-translate-y-0.5">
+                    ANIME<span class="bg-gradient-to-r from-red-500 via-rose-400 to-orange-400 bg-clip-text text-transparent group-hover:from-red-400 group-hover:to-orange-300">FLOW</span>
                 </span>
             </div>
             
@@ -257,7 +272,7 @@
         const SUPABASE_URL = 'https://sodicdqwfxcjakgsdspb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zea9GDv7bDpjDCHgDKNazQ_6240ZBp7';
         
-        // ZABEZPIECZENIE: Hasło do panelu admina
+        // Hasło do panelu admina
         const ADMIN_PASSWORD = '10992'; 
 
         const { createClient } = supabase;
