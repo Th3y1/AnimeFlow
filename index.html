@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NaszeAnime - Platforma Streamingowa</title>
-    <!-- Czcionka w stylu bubble / modern -->
+    <title>AnimeFlow - Platforma Streamingowa</title>
+    <!-- Czcionka w stylu bubble / modern (Quicksand) -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
     <!-- FontAwesome do ikonek w pasku -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -21,7 +23,7 @@
             color: #ffffff;
         }
 
-        /* Górny pasek nawigacyjny z obrazka */
+        /* Górny pasek nawigacyjny */
         .navbar {
             background-color: #0b0b0b;
             display: flex;
@@ -197,7 +199,7 @@
 </head>
 <body>
 
-    <!-- Górny pasek nawigacyjny dokladnie jak na dostarczonym obrazku -->
+    <!-- Górny pasek nawigacyjny -->
     <nav class="navbar">
         <a href="#" class="nav-item"><i class="fa-solid fa-house"></i></a>
         <a href="#" class="nav-item"><i class="fa-solid fa-film"></i> ANIME <i class="fa-solid fa-caret-down"></i></a>
@@ -213,15 +215,14 @@
     <div class="container">
         <!-- Katalog Ogłoszeń -->
         <section class="announcements-section">
-            <h2>📢 Ogłoszenia</h2>
+            <h2>📢 Katalog Ogłoszeń</h2>
             <div id="announcements-container">
-                <!-- Ogłoszenia generowane dynamicznie -->
                 <div class="announcement-card">
                     <img src="https://via.placeholder.com/100x70" alt="Ogłoszenie">
                     <div class="announcement-info">
-                        <div class="date">Data: 2026-09-18</div>
-                        <h3>Wstępny start platformy!</h3>
-                        <p>Witamy na nowej odsłonie NaszeAnime. Miłego oglądania!</p>
+                        <div class="date" id="ann-date">Data: 2026-09-19</div>
+                        <h3 id="ann-title">Witaj w AnimeFlow!</h3>
+                        <p id="ann-desc">Platforma działa i łączy się z bazą danych.</p>
                     </div>
                 </div>
             </div>
@@ -230,72 +231,58 @@
         <!-- Lista Anime -->
         <h2>Polecane Anime</h2>
         <div class="anime-grid" id="anime-grid">
-            <!-- Dynamiczne kafelki -->
-            <div class="anime-card">
-                <img src="https://via.placeholder.com/180x250" alt="Anime">
-                <div class="anime-title">Przykładowe Anime</div>
-            </div>
+            <!-- Tutaj ładowane są anime z Supabase -->
         </div>
 
         <!-- PANEL ADMINISTRATORA -->
         <div id="admin-panel">
-            <h2>Panel Administratora</h2>
-            <p style="color: #888; font-size: 13px; margin-bottom: 20px;">Zarządzaj treścią strony (Dodawanie, Edycja, Usuwanie).</p>
+            <h2>Panel Administratora (Hasło: 10992)</h2>
+            <p style="color: #888; font-size: 13px; margin-bottom: 20px;">Wprowadzane dane trafiają bezpośrednio do chmury Supabase.</p>
 
-            <!-- Sekcja: Dodawanie / Edycja Seria -->
-            <div class="admin-section-title">Zarządzanie Seriale</div>
+            <!-- Sekcja: Dodawanie Serii -->
+            <div class="admin-section-title">Dodaj Serię Anime</div>
             <div class="admin-form-group">
                 <label>Tytuł Serii</label>
-                <input type="text" id="admin-anime-title" placeholder="Wpisz tytuł anime...">
+                <input type="text" id="admin-anime-title" placeholder="Wpisz tytuł...">
             </div>
             <div class="admin-form-group">
                 <label>Link do Okładki (Zdjęcia)</label>
                 <input type="text" id="admin-anime-img" placeholder="https://...">
             </div>
-            <button class="admin-btn" onclick="addAnime()">Dodaj Seria</button>
+            <button class="admin-btn" onclick="addNewAnime()">Zapisz Serię w Chmurze</button>
 
-            <!-- Sekcja: Dodawanie Odcinków -->
-            <div class="admin-section-title">Dodawaj Odcinki</div>
-            <div class="admin-form-group">
-                <label>Wybierz Serię</label>
-                <select id="admin-episode-anime-select">
-                    <option value="1">Przykładowe Anime</option>
-                </select>
-            </div>
-            <div class="admin-form-group">
-                <label>Numer Odcinka / Tytuł</label>
-                <input type="text" id="admin-episode-title" placeholder="Odcinek 1">
-            </div>
-            <div class="admin-form-group">
-                <label>Link do Wideo</label>
-                <input type="text" id="admin-episode-url" placeholder="Link do wideo...">
-            </div>
-            <button class="admin-btn" onclick="addEpisode()">Dodaj Odcinek</button>
-
-            <!-- Sekcja: Dodawanie Ogłoszeń z Data i Zdjęciem -->
+            <!-- Sekcja: Dodawanie Ogłoszeń -->
             <div class="admin-section-title">Dodaj Ogłoszenie</div>
             <div class="admin-form-group">
                 <label>Tytuł ogłoszenia</label>
-                <input type="text" id="admin-announcement-title" placeholder="Tytuł...">
+                <input type="text" id="admin-ann-title" placeholder="Tytuł...">
             </div>
             <div class="admin-form-group">
-                <label>Treść ogłoszenia</label>
-                <textarea id="admin-announcement-content" rows="3" placeholder="Treść..."></textarea>
+                <label>Treść</label>
+                <textarea id="admin-ann-desc" rows="3" placeholder="Treść ogłoszenia..."></textarea>
             </div>
             <div class="admin-form-group">
                 <label>Data dodania</label>
-                <input type="date" id="admin-announcement-date">
+                <input type="date" id="admin-ann-date">
             </div>
             <div class="admin-form-group">
-                <label>Link do zdjęcia ogłoszenia</label>
-                <input type="text" id="admin-announcement-img" placeholder="https://...">
+                <label>Link do zdjęcia</label>
+                <input type="text" id="admin-ann-img" placeholder="https://...">
             </div>
-            <button class="admin-btn" onclick="addAnnouncement()">Opublikuj Ogłoszenie</button>
+            <button class="admin-btn" onclick="addNewAnnouncement()">Opublikuj Ogłoszenie</button>
         </div>
     </div>
 
     <script>
-        // Logika logowania do panelu admina z hasłem 10992
+        // ==========================================
+        // 1. KONFIGURACJA SUPABASE (Wklej swoje dane)
+        // ==========================================
+        const SUPABASE_URL = 'TUTAJ_WKLEJ_SWOJ_URL';
+        const SUPABASE_ANON_KEY = 'TUTAJ_WKLEJ_SWOJ_KLUCZ_ANON';
+        
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Otwieranie panelu admina na hasło 10992
         function toggleAdminPanel() {
             const password = prompt("Podaj hasło administratora:");
             if (password === "10992") {
@@ -307,23 +294,50 @@
             }
         }
 
-        // Funkcje symulujące akcje (gotowe pod podpięcie Supabase)
-        function addAnime() {
+        // Funkcja dodawania anime do Supabase
+        async function addNewAnime() {
             const title = document.getElementById('admin-anime-title').value;
-            const img = document.getElementById('admin-anime-img').value;
-            if(!title) return alert('Wpisz tytuł!');
-            alert('Seria "' + title + '" została dodana! (Za chwicę podepniemy Supabase)');
+            const image_url = document.getElementById('admin-anime-img').value;
+
+            if(!title) return alert('Wpisz tytuł serii!');
+
+            const { data, error } = await _supabase
+                .from('anime')
+                .insert([{ title, image_url }]);
+
+            if (error) {
+                alert('Błąd zapisu: ' + error.message);
+            } else {
+                alert('Seria dodana pomyślnie do Supabase!');
+                location.reload();
+            }
         }
 
-        function addEpisode() {
-            alert('Odcinek został dodany pomyślnie!');
+        // Funkcja dodawania ogłoszenia do Supabase
+        async function addNewAnnouncement() {
+            const title = document.getElementById('admin-ann-title').value;
+            const content = document.getElementById('admin-ann-desc').value;
+            const date = document.getElementById('admin-ann-date').value;
+            const image_url = document.getElementById('admin-ann-img').value;
+
+            if(!title) return alert('Wpisz tytuł ogłoszenia!');
+
+            const { data, error } = await _supabase
+                .from('announcements')
+                .insert([{ title, content, date, image_url }]);
+
+            if (error) {
+                alert('Błąd zapisu: ' + error.message);
+            } else {
+                alert('Ogłoszenie opublikowane w chmurze!');
+                location.reload();
+            }
         }
 
-        function addAnnouncement() {
-            const title = document.getElementById('admin-announcement-title').value;
-            if(!title) return alert('Uzupełnij tytuł ogłoszenia!');
-            alert('Ogłoszenie zostało dodane do katalogu ogłoszeń!');
-        }
+        // Pobieranie danych przy starcie strony (opcjonalnie do rozbudowy)
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log("AnimeFlow załadowane, gotowe do podpięcia tabel Supabase.");
+        });
     </script>
 </body>
 </html>
