@@ -23,6 +23,11 @@
             transform: translateY(-4px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
         }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -62,7 +67,6 @@
                         <i class="fa-solid fa-fire text-red-500"></i> Najlepsze i Ostatnio Dodane Serie
                     </h2>
                     <div id="anime-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        <!-- Cards injected via JS -->
                         <div class="col-span-full text-center py-12 text-zinc-500">Ładowanie danych z Supabase...</div>
                     </div>
                 </div>
@@ -88,10 +92,10 @@
             </div>
         </section>
 
-        <!-- SECTION: Details / Player -->
+        <!-- SECTION: Details / Odtwarzacz -->
         <section id="sec-details" class="hidden">
             <button onclick="showSection('home')" class="mb-4 text-sm bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg flex items-center gap-2">
-                <i class="fa-solid fa-arrow-left"></i> Powrót
+                <i class="fa-solid fa-arrow-left"></i> Powrót do listy
             </button>
             <div id="details-content" class="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
                 <!-- Injected via JS -->
@@ -114,34 +118,92 @@
 
         <!-- SECTION: Admin Panel -->
         <section id="sec-admin" class="hidden">
-            <h2 class="text-xl font-bold mb-4 border-l-4 border-red-600 pl-3">Panel Administratora</h2>
-            <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl max-w-xl">
-                <h3 class="font-bold mb-4">Dodaj nowe Anime</h3>
-                <form id="add-anime-form" onsubmit="handleAddAnime(event)" class="space-y-4 text-sm">
-                    <div>
-                        <label class="block text-zinc-400 mb-1">Tytuł</label>
-                        <input type="text" id="adm-title" required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
-                    </div>
-                    <div>
-                        <label class="block text-zinc-400 mb-1">URL Okładki (image_url)</label>
-                        <input type="url" id="adm-image" required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
+            <h2 class="text-xl font-bold mb-6 border-l-4 border-red-600 pl-3">Panel Administratora</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Lewa kolumna: Formularz Dodawania / Edycji Serialu -->
+                <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
+                    <h3 id="admin-form-title" class="font-bold text-lg mb-4 text-white">Dodaj nowe Anime</h3>
+                    <form id="add-anime-form" onsubmit="handleSaveAnime(event)" class="space-y-4 text-sm">
+                        <input type="hidden" id="adm-id">
                         <div>
-                            <label class="block text-zinc-400 mb-1">Status</label>
-                            <input type="text" id="adm-status" placeholder="np. Wychodzi / Zakończone" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                            <label class="block text-zinc-400 mb-1">Tytuł</label>
+                            <input type="text" id="adm-title" required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
                         </div>
                         <div>
-                            <label class="block text-zinc-400 mb-1">Kategoria</label>
-                            <input type="text" id="adm-category" placeholder="np. Akcja, Fantasy" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                            <label class="block text-zinc-400 mb-1">URL Okładki (image_url)</label>
+                            <input type="url" id="adm-image" required class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-zinc-400 mb-1">Status</label>
+                                <input type="text" id="adm-status" placeholder="np. Wychodzi / Zakończone" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-zinc-400 mb-1">Kategoria</label>
+                                <input type="text" id="adm-category" placeholder="np. Akcja, Fantasy" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-zinc-400 mb-1">Ocena (1 - 10)</label>
+                            <input type="number" step="0.1" id="adm-rating" min="0" max="10" placeholder="8.5" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="bg-red-600 hover:bg-red-700 font-bold py-2 px-4 rounded text-white transition-colors flex-1">Zapisz Anime</button>
+                            <button type="button" onclick="resetAdminForm()" class="bg-zinc-700 hover:bg-zinc-600 font-bold py-2 px-4 rounded text-white transition-colors">Anuluj</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Prawa kolumna: Zarządzanie Odcinkami -->
+                <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-xl space-y-4">
+                    <h3 class="font-bold text-lg text-white">Zarządzanie Odcinkami</h3>
+                    
+                    <div>
+                        <label class="block text-zinc-400 mb-1 text-sm">Wybierz Serial</label>
+                        <select id="admin-anime-select" onchange="loadAdminEpisodes()" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white text-sm">
+                            <option value="">-- Wybierz Anime --</option>
+                        </select>
+                    </div>
+
+                    <div id="episode-form-container" class="hidden border-t border-zinc-800 pt-4 mt-4 space-y-4">
+                        <h4 class="font-bold text-sm text-zinc-300">Dodaj Nowy Odcinek</h4>
+                        <form onsubmit="handleAddEpisode(event)" class="space-y-3 text-sm">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-zinc-400 text-xs mb-1">Nr odcinka</label>
+                                    <input type="number" id="ep-number" required min="1" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-zinc-400 text-xs mb-1">Tytuł odcinka (opcjonalnie)</label>
+                                    <input type="text" id="ep-title" placeholder="np. Początek" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-zinc-400 text-xs mb-1">Link do Wideo (mp4 / iframe / embed)</label>
+                                <input type="text" id="ep-url" required placeholder="https://..." class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
+                            </div>
+                            <button type="submit" class="bg-green-600 hover:bg-green-700 font-bold py-1.5 px-3 rounded text-white text-xs transition-colors w-full">
+                                Dodaj Odcinek
+                            </button>
+                        </form>
+
+                        <div class="border-t border-zinc-800 pt-3">
+                            <h4 class="font-bold text-sm text-zinc-300 mb-2">Lista Odcinków</h4>
+                            <div id="admin-episodes-list" class="space-y-2 max-h-48 overflow-y-auto text-xs">
+                                <p class="text-zinc-500">Wybierz anime, aby zobaczyć odcinki.</p>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-zinc-400 mb-1">Ocena (1 - 10)</label>
-                        <input type="number" step="0.1" id="adm-rating" min="0" max="10" placeholder="8.5" class="w-full bg-zinc-800 border border-zinc-700 rounded p-2 text-white">
-                    </div>
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 font-bold py-2 px-4 rounded text-white transition-colors w-full">Dodaj do Bazy</button>
-                </form>
+                </div>
+            </div>
+
+            <!-- Lista Istniejących Anime (Zarządzanie / Edycja) -->
+            <div class="mt-8 bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
+                <h3 class="font-bold text-lg mb-4 text-white">Lista Seriali w Bazie</h3>
+                <div id="admin-anime-list" class="divide-y divide-zinc-800 text-sm">
+                    <!-- Dynamicznie ładowana lista -->
+                </div>
             </div>
         </section>
 
@@ -156,16 +218,19 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allAnimeData = [];
+        let currentEpisodes = [];
 
         async function fetchAnime() {
             const statusDiv = document.getElementById('db-status');
             try {
-                let { data: anime, error } = await _supabase.from('anime').select('*');
+                let { data: anime, error } = await _supabase.from('anime').select('*').order('created_at', { ascending: false });
                 if (error) throw error;
                 
                 allAnimeData = anime || [];
                 renderAnimeGrid(allAnimeData);
                 renderTopRated(allAnimeData);
+                populateAdminSelect();
+                renderAdminAnimeList();
                 
                 statusDiv.innerHTML = `<i class="fa-solid fa-circle-check text-green-500"></i> Połączono z Supabase`;
                 statusDiv.className = "text-xs flex items-center gap-2 text-green-500";
@@ -219,25 +284,55 @@
             `).join('');
         }
 
-        function openAnimeDetails(id) {
+        async function openAnimeDetails(id) {
             const item = allAnimeData.find(a => a.id === id);
             if (!item) return;
 
+            // Pobierz odcinki dla danego anime
+            let { data: episodes } = await _supabase.from('episodes').select('*').eq('anime_id', id).order('episode_number', { ascending: true });
+            episodes = episodes || [];
+
             const content = document.getElementById('details-content');
             content.innerHTML = `
-                <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex flex-col md:flex-row gap-6 mb-8">
                     <img src="${item.image_url || 'https://via.placeholder.com/300x450'}" class="w-48 rounded-lg object-cover shadow-lg mx-auto md:mx-0">
                     <div>
                         <h1 class="text-2xl font-bold mb-2 text-white">${item.title}</h1>
-                        <div class="flex items-center gap-4 text-sm text-zinc-400 mb-4">
+                        <div class="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
                             <span>Status: <strong class="text-zinc-200">${item.status || 'Nieokreślony'}</strong></span>
                             <span>Kategoria: <strong class="text-zinc-200">${item.category || 'Brak'}</strong></span>
                             <span>Ocena: <strong class="text-yellow-400"><i class="fa-solid fa-star"></i> ${item.rating || 'Brak'}</strong></span>
                         </div>
                     </div>
                 </div>
+
+                <!-- Odtwarzacz Wideo -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-lg text-white border-l-4 border-red-600 pl-3">Odtwarzacz Wideo</h3>
+                    <div id="video-container" class="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center border border-zinc-800">
+                        <p class="text-zinc-500 text-sm">Wybierz odcinek z listy poniżej, aby rozpocząć odtwarzanie.</p>
+                    </div>
+
+                    <h4 class="font-bold text-sm text-zinc-300 mt-6">Dostępne Odcinki:</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                        ${episodes.length > 0 ? episodes.map(ep => `
+                            <button onclick="playEpisode('${ep.video_url}')" class="bg-zinc-800 hover:bg-red-600 p-2.5 rounded-lg text-xs font-semibold transition-colors flex flex-col items-center gap-1 text-center">
+                                <span class="text-white">Odcinek ${ep.episode_number}</span>${ep.title ? `<span class="text-zinc-400 text-[10px] truncate max-w-full">${ep.title}</span>` : ''}
+                            </button>
+                        `).join('') : '<p class="text-zinc-500 text-xs col-span-full">Brak dodanych odcinków dla tego anime.</p>'}
+                    </div>
+                </div>
             `;
             showSection('details');
+        }
+
+        function playEpisode(url) {
+            const container = document.getElementById('video-container');
+            if (url.includes('.mp4')) {
+                container.innerHTML = `<video controls class="w-full h-full"><source src="${url}" type="video/mp4">Twój odtwarzacz nie wspiera tego formatu.</video>`;
+            } else {
+                container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+            }
         }
 
         function filterAnime() {
@@ -246,24 +341,151 @@
             renderAnimeGrid(filtered);
         }
 
-        async function handleAddAnime(e) {
+        // --- PANEL ADMINISTRATORA ---
+
+        function populateAdminSelect() {
+            const select = document.getElementById('admin-anime-select');
+            select.innerHTML = '<option value="">-- Wybierz Anime --</option>' + 
+                allAnimeData.map(a => `<option value="${a.id}">${a.title}</option>`).join('');
+        }
+
+        function renderAdminAnimeList() {
+            const list = document.getElementById('admin-anime-list');
+            if (allAnimeData.length === 0) {
+                list.innerHTML = '<p class="text-zinc-500 py-2">Brak seriali w bazie.</p>';
+                return;
+            }
+
+            list.innerHTML = allAnimeData.map(a => `
+                <div class="flex items-center justify-between py-3">
+                    <div class="flex items-center gap-3">
+                        <img src="${a.image_url}" class="w-10 h-14 object-cover rounded">
+                        <div>
+                            <p class="font-bold text-white">${a.title}</p>
+                            <p class="text-xs text-zinc-400">${a.category || 'Brak kat.'} | Ocena: ${a.rating || '-'}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editAnime(${a.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-semibold transition-colors">Edytuj</button>
+                        <button onclick="deleteAnime(${a.id})" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-semibold transition-colors">Usuń</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function handleSaveAnime(e) {
             e.preventDefault();
+            const id = document.getElementById('adm-id').value;
             const title = document.getElementById('adm-title').value;
             const image_url = document.getElementById('adm-image').value;
             const status = document.getElementById('adm-status').value;
             const category = document.getElementById('adm-category').value;
             const rating = parseFloat(document.getElementById('adm-rating').value) || null;
 
-            const { data, error } = await _supabase.from('anime').insert([{ title, image_url, status, category, rating }]);
-
-            if (error) {
-                alert('Błąd dodawania: ' + error.message);
+            if (id) {
+                // UPDATE
+                const { error } = await _supabase.from('anime').update({ title, image_url, status, category, rating }).eq('id', id);
+                if (error) alert('Błąd edycji: ' + error.message);
+                else alert('Zaktualizowano pomyślnie!');
             } else {
-                alert('Dodano pomyślnie!');
-                document.getElementById('add-anime-form').reset();
-                fetchAnime();
-                showSection('home');
+                // INSERT
+                const { error } = await _supabase.from('anime').insert([{ title, image_url, status, category, rating }]);
+                if (error) alert('Błąd dodawania: ' + error.message);
+                else alert('Dodano pomyślnie!');
             }
+
+            resetAdminForm();
+            fetchAnime();
+        }
+
+        function editAnime(id) {
+            const item = allAnimeData.find(a => a.id === id);
+            if (!item) return;
+
+            document.getElementById('adm-id').value = item.id;
+            document.getElementById('adm-title').value = item.title;
+            document.getElementById('adm-image').value = item.image_url;
+            document.getElementById('adm-status').value = item.status || '';
+            document.getElementById('adm-category').value = item.category || '';
+            document.getElementById('adm-rating').value = item.rating || '';
+
+            document.getElementById('admin-form-title').innerText = 'Edytuj Anime';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function deleteAnime(id) {
+            if (!confirm('Czy na pewno chcesz usunąć to anime i wszystkie jego odcinki?')) return;
+
+            const { error } = await _supabase.from('anime').delete().eq('id', id);
+            if (error) alert('Błąd usuwania: ' + error.message);
+            else {
+                alert('Usunięto pomyślnie!');
+                fetchAnime();
+            }
+        }
+
+        function resetAdminForm() {
+            document.getElementById('adm-id').value = '';
+            document.getElementById('add-anime-form').reset();
+            document.getElementById('admin-form-title').innerText = 'Dodaj nowe Anime';
+        }
+
+        // Zarządzanie odcinkami w panelu admina
+        async function loadAdminEpisodes() {
+            const animeId = document.getElementById('admin-anime-select').value;
+            const container = document.getElementById('episode-form-container');
+
+            if (!animeId) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            let { data: episodes } = await _supabase.from('episodes').select('*').eq('anime_id', animeId).order('episode_number', { ascending: true });
+            currentEpisodes = episodes || [];
+
+            renderAdminEpisodesList();
+        }
+
+        function renderAdminEpisodesList() {
+            const list = document.getElementById('admin-episodes-list');
+            if (currentEpisodes.length === 0) {
+                list.innerHTML = '<p class="text-zinc-500">Brak dodanych odcinków.</p>';
+                return;
+            }
+
+            list.innerHTML = currentEpisodes.map(ep => `
+                <div class="flex items-center justify-between bg-zinc-800 p-2 rounded">
+                    <span class="text-white font-medium">Odcinek ${ep.episode_number}: ${ep.title || 'Brak tytułu'}</span>
+                    <button onclick="deleteEpisode(${ep.id})" class="text-red-400 hover:text-red-300 font-bold px-2">Usuń</button>
+                </div>
+            `).join('');
+        }
+
+        async function handleAddEpisode(e) {
+            e.preventDefault();
+            const anime_id = document.getElementById('admin-anime-select').value;
+            const episode_number = parseInt(document.getElementById('ep-number').value);
+            const title = document.getElementById('ep-title').value;
+            const video_url = document.getElementById('ep-url').value;
+
+            const { error } = await _supabase.from('episodes').insert([{ anime_id, episode_number, title, video_url }]);
+            if (error) {
+                alert('Błąd dodawania odcinka: ' + error.message);
+            } else {
+                alert('Dodano odcinek!');
+                document.getElementById('ep-number').value = episode_number + 1;
+                document.getElementById('ep-title').value = '';
+                document.getElementById('ep-url').value = '';
+                loadAdminEpisodes();
+            }
+        }
+
+        async function deleteEpisode(epId) {
+            if (!confirm('Usunąć ten odcinek?')) return;
+            const { error } = await _supabase.from('episodes').delete().eq('id', epId);
+            if (error) alert('Błąd usuwania: ' + error.message);
+            else loadAdminEpisodes();
         }
 
         function showSection(name) {
@@ -273,7 +495,7 @@
             document.getElementById(`sec-${name}`).classList.remove('hidden');
         }
 
-        // Initialize on page load
+        // Start
         fetchAnime();
     </script>
 </body>
