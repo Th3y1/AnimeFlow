@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         :root {
             --bg-main: #0f0f11;
@@ -555,7 +556,7 @@
             if (error) {
                 console.error('Błąd:', error);
                 status.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color: #ff4757;"></i> Błąd bazy danych';
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ff4757;">Błąd połączenia z tabelą 'anime'. Sprawdź konfigurację Supabase.</div>';
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ff4757;">Błąd połączenia z tabelą \'anime\'. Sprawdź konfigurację Supabase.</div>';
                 return;
             }
 
