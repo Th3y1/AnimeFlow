@@ -105,7 +105,7 @@
                     </div>
 
                     <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-                        <h3 class="font-bold text-sm text-zinc-300 mb-2">Status Połączenia</h3>
+                        <h3 class="font-bold text-sm text-zinc-300 mb-2">Status Strony</h3>
                         <div id="db-status" class="text-xs flex items-center gap-2 text-yellow-500">
                             <i class="fa-solid fa-spinner animate-spin"></i> Sprawdzanie...
                         </div>
@@ -310,7 +310,7 @@
                 renderAdminAnimeList();
                 fetchAnnouncements();
                 
-                statusDiv.innerHTML = `<i class="fa-solid fa-circle-check text-green-500"></i> Połączono z Supabase`;
+                statusDiv.innerHTML = `<i class="fa-solid fa-circle-check text-red-500"></i> Zatrzymanie serwera`;
                 statusDiv.className = "text-xs flex items-center gap-2 text-green-500";
             } catch (err) {
                 console.error("Błąd połączenia z Supabase:", err);
