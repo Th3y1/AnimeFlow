@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Yuji Mai (Japoński kaligraficzny) & Zen Maru Gothic (Miękki styl) -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Yuji+Mai&display=swap" rel="stylesheet">
@@ -22,6 +22,47 @@
             --sakura-border: rgba(244, 114, 182, 0.2);
             --sakura-pink: #ec4899;
             --sakura-glow: rgba(236, 72, 153, 0.4);
+            --custom-bg-img: none;
+        }
+
+        body.theme-obsidian {
+            --sakura-bg: #09090b;
+            --sakura-card: rgba(18, 18, 22, 0.85);
+            --sakura-border: rgba(255, 255, 255, 0.1);
+            --sakura-pink: #a855f7;
+            --sakura-glow: rgba(168, 85, 247, 0.4);
+        }
+
+        body.theme-monochrome {
+            --sakura-bg: #121212;
+            --sakura-card: rgba(30, 30, 30, 0.85);
+            --sakura-border: rgba(200, 200, 200, 0.2);
+            --sakura-pink: #ffffff;
+            --sakura-glow: rgba(255, 255, 255, 0.3);
+            filter: grayscale(100%);
+        }
+
+        body.theme-ocean {
+            --sakura-bg: #031525;
+            --sakura-card: rgba(10, 35, 55, 0.8);
+            --sakura-border: rgba(56, 189, 248, 0.3);
+            --sakura-pink: #38bdf8;
+            --sakura-glow: rgba(56, 189, 248, 0.4);
+        }
+
+        body.theme-cyberpunk {
+            --sakura-bg: #051a0e;
+            --sakura-card: rgba(12, 40, 24, 0.85);
+            --sakura-border: rgba(74, 222, 128, 0.3);
+            --sakura-pink: #4ade80;
+            --sakura-glow: rgba(74, 222, 128, 0.4);
+        }
+
+        body.theme-custom {
+            background-image: var(--custom-bg-img) !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
         }
 
         body {
@@ -32,11 +73,10 @@
                 radial-gradient(circle at 10% 10%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(219, 39, 119, 0.06) 0%, transparent 40%);
             background-attachment: fixed;
+            transition: background-color 0.3s ease;
         }
 
-        .font-jp {
-            font-family: 'Yuji Mai', serif;
-        }
+        .font-jp { font-family: 'Yuji Mai', serif; }
 
         .japanese-watermark {
             position: absolute;
@@ -65,20 +105,12 @@
             transform: translateY(-3px);
         }
 
-        .pink-glow-text {
-            text-shadow: 0 0 12px rgba(244, 114, 182, 0.6);
-        }
+        .pink-glow-text { text-shadow: 0 0 12px rgba(244, 114, 182, 0.6); }
 
-        /* Sakura Petals Animation */
         .sakura-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; overflow: hidden;
         }
 
         .petal {
@@ -90,61 +122,159 @@
         }
 
         @keyframes animate-petal {
-            0% {
-                top: -10%;
-                transform: translateX(0) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.4;
-            }
-            90% {
-                opacity: 0.4;
-            }
-            100% {
-                top: 110%;
-                transform: translateX(120px) rotate(360deg);
-                opacity: 0;
-            }
+            0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { top: 110%; transform: translateX(120px) rotate(360deg); opacity: 0; }
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #110915;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #831843;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #be185d;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #110915; }
+        ::-webkit-scrollbar-thumb { background: #831843; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #be185d; }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* Styl dla odtwarzacza w trybie Mini-Player */
+        .mini-player-active {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            width: 320px !important;
+            height: 180px !important;
+            z-index: 9999 !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(236, 72, 153, 0.4) !important;
+            border-radius: 1rem !important;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col relative overflow-x-hidden">
 
-    <!-- Falling Sakura Petals Background -->
+    <!-- Tło z Płatkami Sakury -->
     <div class="sakura-container" id="sakura-box"></div>
 
-    <!-- Tło Japoński Symbol / Kanji -->
     <div class="japanese-watermark text-[25vw] top-10 right-[-5vw]">桜</div>
     <div class="japanese-watermark text-[20vw] bottom-10 left-[-3vw]">アニメ</div>
 
+    <!-- MODAL - Nickname -->
+    <div id="nickname-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl text-center space-y-4 border border-pink-500/40 shadow-2xl">
+            <div class="w-14 h-14 bg-pink-950/80 rounded-full border border-pink-400/40 flex items-center justify-center mx-auto shadow-lg shadow-pink-500/20">
+                <i class="fa-solid fa-user-ninja text-pink-400 text-2xl"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-white">Witaj na AnimeFlow!</h3>
+                <p class="text-xs text-pink-300/70 mt-1">Podaj swój pseudonim, aby móc korzystać ze strony.</p>
+            </div>
+            <form onsubmit="submitNickname(event)" class="space-y-3">
+                <input type="text" id="user-nick-input" required placeholder="Twój nick..." class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-2.5 text-pink-100 text-xs text-center focus:outline-none focus:border-pink-400">
+                <button type="submit" class="w-full bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-bold py-2 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30">Zapisz i Wejdź</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL - Ustawienia Strony -->
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[90] flex items-center justify-center p-4">
+        <div class="glass-panel max-w-lg w-full rounded-2xl border border-pink-500/30 shadow-2xl overflow-hidden relative">
+            
+            <div class="px-6 py-4 bg-pink-950/40 border-b border-pink-500/20 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-sliders text-pink-400 text-sm"></i>
+                    <h3 class="text-sm font-bold tracking-wide text-white uppercase">Personalizacja & Preferencje</h3>
+                </div>
+                <button onclick="toggleSettingsModal()" class="w-8 h-8 rounded-full bg-pink-950/60 hover:bg-pink-900 border border-pink-500/20 text-pink-300 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5 text-xs">
+                
+                <div class="space-y-2">
+                    <label class="text-pink-200 font-semibold block">Styl Wizualny (GUI)</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button onclick="selectTheme('sakura')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-pink-500 inline-block shadow-[0_0_8px_#ec4899]"></span>
+                                <span class="font-bold text-white text-[11px]">Sakura Wave</span>
+                            </div>
+                        </button>
+                        <button onclick="selectTheme('obsidian')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-purple-600 inline-block"></span>
+                                <span class="font-bold text-white text-[11px]">Pure Obsidian</span>
+                            </div>
+                        </button>
+                        <button onclick="selectTheme('monochrome')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-slate-300 inline-block"></span>
+                                <span class="font-bold text-white text-[11px]">Monochrome</span>
+                            </div>
+                        </button>
+                        <button onclick="selectTheme('ocean')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-sky-400 inline-block"></span>
+                                <span class="font-bold text-white text-[11px]">Ocean Blue</span>
+                            </div>
+                        </button>
+                        <button onclick="selectTheme('cyberpunk')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+                                <span class="font-bold text-white text-[11px]">Cyberpunk</span>
+                            </div>
+                        </button>
+                        <button onclick="selectTheme('custom')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-gradient-to-r from-pink-500 to-amber-400 inline-block"></span>
+                                <span class="font-bold text-white text-[11px]">Custom GUI</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="custom-gui-box" class="hidden space-y-2 border-t border-pink-500/15 pt-4">
+                    <label class="text-pink-200 font-semibold block">Własny Obraz / GIF Tła</label>
+                    <div class="flex gap-2">
+                        <input type="url" id="custom-bg-input" placeholder="Wklej bezpośredni URL..." class="flex-1 bg-pink-950/40 border border-pink-500/30 rounded-xl px-3 py-2 text-pink-100 placeholder-pink-300/30 text-xs focus:outline-none focus:border-pink-400">
+                        <button onclick="saveCustomBg()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shrink-0">Aplikuj</button>
+                    </div>
+                    <p id="gif-warning" class="text-[10px] text-amber-400 hidden flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Animacje GIF są zastrzeżone dla rang VIP oraz Admin!
+                    </p>
+                </div>
+
+                <div class="border-t border-pink-500/15 pt-4 space-y-3">
+                    <label class="text-pink-200 font-semibold block">Domyślny Język Odtwarzacza</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center justify-between p-2.5 bg-pink-950/30 border border-pink-500/20 rounded-xl cursor-pointer hover:border-pink-500/40">
+                            <span class="text-pink-100 font-medium">🇵🇱 Polski (PL)</span>
+                            <input type="radio" name="player_lang" value="PL" onchange="updateSetting('lang', 'PL')" class="accent-pink-500">
+                        </label>
+                        <label class="flex items-center justify-between p-2.5 bg-pink-950/30 border border-pink-500/20 rounded-xl cursor-pointer hover:border-pink-500/40">
+                            <span class="text-pink-100 font-medium">🇬🇧 English (EN)</span>
+                            <input type="radio" name="player_lang" value="EN" onchange="updateSetting('lang', 'EN')" class="accent-pink-500">
+                        </label>
+                        <label class="flex items-center justify-between p-2.5 bg-pink-950/30 border border-pink-500/20 rounded-xl cursor-pointer hover:border-pink-500/40">
+                            <span class="text-pink-100 font-medium">🇯🇵 日本語 (JP)</span>
+                            <input type="radio" name="player_lang" value="JP" onchange="updateSetting('lang', 'JP')" class="accent-pink-500">
+                        </label>
+                        <label class="flex items-center justify-between p-2.5 bg-pink-950/30 border border-pink-500/20 rounded-xl cursor-pointer hover:border-pink-500/40">
+                            <span class="text-pink-100 font-medium">🇩🇪 Deutsch (DE)</span>
+                            <input type="radio" name="player_lang" value="DE" onchange="updateSetting('lang', 'DE')" class="accent-pink-500">
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <!-- Header / Navbar -->
     <header class="bg-purple-950/40 backdrop-blur-md border-b border-pink-500/20 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
             
-            <!-- LOGO W STYLU JAPOŃSKIM / SAKURA -->
-            <div class="flex items-center gap-3 cursor-pointer group select-none" onclick="showSection('home')">
+            <div class="flex items-center gap-3 cursor-pointer group select-none shrink-0" onclick="showSection('home')">
                 <div class="relative flex items-center justify-center">
                     <div class="absolute -inset-2 bg-gradient-to-tr from-pink-600 to-rose-400 rounded-full blur-md opacity-60 group-hover:opacity-100 transition duration-500"></div>
                     <div class="w-10 h-10 rounded-full bg-pink-950/80 border border-pink-400/50 flex items-center justify-center relative shadow-inner">
@@ -160,26 +290,37 @@
                 </div>
             </div>
             
-            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold tracking-wide">
-                <button onclick="showSection('home')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2 hover:drop-shadow-[0_0_8px_rgba(244,114,182,0.8)]"><i class="fa-solid fa-house-kimono text-pink-400"></i> Główna</button>
-                <button onclick="showSection('calendar')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2 hover:drop-shadow-[0_0_8px_rgba(244,114,182,0.8)]"><i class="fa-solid fa-calendar-heart text-pink-400"></i> Kalendarz</button>
-                <button onclick="showSection('announcements')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2 hover:drop-shadow-[0_0_8px_rgba(244,114,182,0.8)]"><i class="fa-solid fa-scroll text-pink-400"></i> Ogłoszenia</button>
+            <nav class="hidden md:flex items-center gap-6 text-sm font-semibold tracking-wide">
+                <button onclick="showSection('home')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-house-kimono text-pink-400"></i> Główna</button>
+                <button onclick="showSection('calendar')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar-heart text-pink-400"></i> Kalendarz</button>
+                <button onclick="showSection('announcements')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-scroll text-pink-400"></i> Ogłoszenia</button>
                 <button onclick="showSection('admin')" class="text-pink-100/40 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-user-ninja text-pink-500"></i> Admin</button>
             </nav>
 
-            <div class="flex items-center gap-4">
-                <div class="relative w-44 sm:w-60">
-                    <input type="text" id="search-input" oninput="filterAnime()" placeholder="Szukaj (検索)..." 
-                        class="w-full bg-pink-950/30 text-xs text-pink-100 placeholder-pink-300/40 px-3 py-2 pl-9 rounded-full border border-pink-500/20 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400/50 transition-all">
+            <div class="flex items-center gap-3">
+                <div class="relative w-32 sm:w-48">
+                    <input type="text" id="search-input" oninput="filterAnime()" placeholder="Szukaj..." 
+                        class="w-full bg-pink-950/30 text-xs text-pink-100 placeholder-pink-300/40 px-3 py-2 pl-8 rounded-full border border-pink-500/20 focus:outline-none focus:border-pink-400 transition-all">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-pink-400/60 text-xs"></i>
                 </div>
 
-                <!-- Discord -->
+                <div id="user-profile-badge" class="hidden sm:flex items-center gap-2 bg-pink-950/50 border border-pink-500/30 px-3 py-1.5 rounded-full text-xs">
+                    <i class="fa-solid fa-circle-user text-pink-400 text-sm"></i>
+                    <div class="flex flex-col text-left leading-tight">
+                        <span id="nav-nick" class="font-bold text-white text-[11px]">...</span>
+                        <span id="nav-role" class="text-[9px] text-pink-300 font-extrabold uppercase">User</span>
+                    </div>
+                </div>
+
                 <a id="discord-link" href="https://discord.gg/UTDFC34jX" target="_blank" rel="noopener noreferrer" 
-                   class="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-pink-600/30 shrink-0" title="Dołącz do naszego Discorda">
+                   class="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white text-xs font-bold p-2.5 sm:px-4 sm:py-2 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-pink-600/30 shrink-0">
                     <i class="fa-brands fa-discord text-sm"></i>
-                    <span class="hidden sm:inline">Discord</span>
+                    <span class="hidden md:inline">Discord</span>
                 </a>
+
+                <button onclick="toggleSettingsModal()" class="w-9 h-9 rounded-full bg-pink-950/60 border border-pink-500/30 hover:bg-pink-900 text-pink-300 hover:text-white flex items-center justify-center transition-all shrink-0" title="Ustawienia">
+                    <i class="fa-solid fa-gear text-sm"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -203,7 +344,6 @@
                     </div>
                 </div>
 
-                <!-- Sidebar -->
                 <div class="space-y-6">
                     <div class="glass-panel rounded-2xl p-5 border border-pink-500/20">
                         <h3 class="font-bold text-sm text-pink-200 mb-4 flex items-center gap-2 border-b border-pink-500/20 pb-3">
@@ -230,9 +370,7 @@
             <button onclick="showSection('home')" class="mb-6 text-xs font-bold bg-pink-950/50 hover:bg-pink-900/60 border border-pink-500/30 text-pink-200 px-4 py-2 rounded-full flex items-center gap-2 transition-all">
                 <i class="fa-solid fa-chevron-left text-pink-400"></i> Powrót do katalogu
             </button>
-            <div id="details-content" class="glass-panel rounded-2xl p-6 sm:p-8">
-                <!-- Injected via JS -->
-            </div>
+            <div id="details-content" class="glass-panel rounded-2xl p-6 sm:p-8"></div>
         </section>
 
         <!-- SECTION: Calendar -->
@@ -241,9 +379,7 @@
                 <span class="w-2 h-7 bg-pink-500 rounded-full inline-block shadow-[0_0_10px_#ec4899]"></span>
                 <span class="font-jp text-pink-300 text-3xl">日程</span> Kalendarz Zapowiedzi & Emisji
             </h2>
-            <div id="calendar-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Injected via JS -->
-            </div>
+            <div id="calendar-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </section>
 
         <!-- SECTION: Announcements -->
@@ -252,9 +388,7 @@
                 <span class="w-2 h-7 bg-pink-500 rounded-full inline-block shadow-[0_0_10px_#ec4899]"></span>
                 <span class="font-jp text-pink-300 text-3xl">お知らせ</span> Ogłoszenia
             </h2>
-            <div id="announcements-list" class="space-y-6">
-                <div class="glass-panel p-6 rounded-2xl text-sm text-pink-300/60">Brak nowych ogłoszeń.</div>
-            </div>
+            <div id="announcements-list" class="space-y-6"></div>
         </section>
 
         <!-- SECTION: Admin Panel -->
@@ -264,7 +398,6 @@
                 <span class="font-jp text-pink-300 text-3xl">管理</span> Panel Administratora
             </h2>
 
-            <!-- ADMIN AUTH LOCK -->
             <div id="admin-auth" class="max-w-md mx-auto glass-panel p-8 rounded-2xl text-center space-y-5 border border-pink-500/30">
                 <div class="w-16 h-16 bg-pink-950/80 rounded-full border border-pink-400/40 flex items-center justify-center mx-auto shadow-lg shadow-pink-500/20">
                     <i class="fa-solid fa-key text-pink-400 text-2xl"></i>
@@ -275,7 +408,7 @@
                 </div>
                 <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                     <input type="password" id="admin-pass-input" placeholder="Hasło..." required class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-3 text-pink-100 text-xs focus:outline-none focus:border-pink-400 text-center tracking-widest">
-                    <button type="submit" class="w-full bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30">Zaloguj</button>
+                    <button type="submit" class="w-full bg-gradient-to-r from-pink-600 to-rose-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30">Zaloguj</button>
                 </form>
             </div>
 
@@ -283,50 +416,77 @@
             <div id="admin-dashboard" class="hidden space-y-8">
                 <div class="flex justify-between items-center glass-panel p-4 rounded-xl">
                     <span class="text-xs text-pink-300 font-bold flex items-center gap-2"><i class="fa-solid fa-shield-halved text-pink-400"></i> Przyznano uprawnienia administratora</span>
-                    <button onclick="adminLogout()" class="bg-pink-950/60 hover:bg-pink-900/80 border border-pink-500/30 text-xs px-4 py-1.5 rounded-full text-pink-200 transition-colors"><i class="fa-solid fa-right-from-bracket"></i> Wyloguj</button>
+                    <button onclick="adminLogout()" class="bg-pink-950/60 hover:bg-pink-900 border border-pink-500/30 text-xs px-4 py-1.5 rounded-full text-pink-200 transition-colors"><i class="fa-solid fa-right-from-bracket"></i> Wyloguj</button>
+                </div>
+
+                <!-- Rangi Użytkowników -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4">
+                    <h3 class="font-bold text-base text-pink-100 flex items-center gap-2"><i class="fa-solid fa-user-gear text-pink-400"></i> Zarządzanie Rangami Użytkowników</h3>
+                    <form onsubmit="handleAssignRole(event)" class="space-y-3 text-xs">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-pink-300/70 text-[10px] mb-1">Nick Użytkownika</label>
+                                <input type="text" id="adm-user-nick" required placeholder="np. AnimeFan99" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
+                            </div>
+                            <div>
+                                <label class="block text-pink-300/70 text-[10px] mb-1">Wybierz Rangę</label>
+                                <select id="adm-user-role" class="w-full bg-pink-950/50 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
+                                    <option value="User">User (Zwykły)</option>
+                                    <option value="VIP">VIP (Dostęp do GIF Custom GUI)</option>
+                                    <option value="Admin">Admin (Pełny dostęp)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2 px-4 rounded-xl text-white text-xs transition-colors shadow-md shadow-pink-600/30">Zapisz Rangę</button>
+                    </form>
+
+                    <div class="border-t border-pink-500/20 pt-3">
+                        <h4 class="font-bold text-xs text-pink-200 mb-2">Zarejestrowani Użytkownicy</h4>
+                        <div id="admin-users-list" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- 1. Dodawanie/Edycja Anime -->
+                    <!-- Dodawanie Anime -->
                     <div class="glass-panel p-6 rounded-2xl">
                         <h3 id="admin-form-title" class="font-bold text-base mb-4 text-pink-100 flex items-center gap-2"><i class="fa-solid fa-plus text-pink-400"></i> Dodaj nowe Anime</h3>
                         <form id="add-anime-form" onsubmit="handleSaveAnime(event)" class="space-y-4 text-xs">
                             <input type="hidden" id="adm-id">
                             <div>
                                 <label class="block text-pink-300/70 mb-1">Tytuł</label>
-                                <input type="text" id="adm-title" required class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100 focus:outline-none focus:border-pink-400">
+                                <input type="text" id="adm-title" required class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                             </div>
                             <div>
                                 <label class="block text-pink-300/70 mb-1">URL Okładki</label>
-                                <input type="url" id="adm-image" required class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100 focus:outline-none focus:border-pink-400">
+                                <input type="url" id="adm-image" required class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-pink-300/70 mb-1">Status</label>
-                                    <input type="text" id="adm-status" placeholder="np. Wychodzi / Zakończone" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100 focus:outline-none focus:border-pink-400">
+                                    <input type="text" id="adm-status" placeholder="np. Wychodzi / Zakończone" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                                 </div>
                                 <div>
                                     <label class="block text-pink-300/70 mb-1">Kategoria</label>
-                                    <input type="text" id="adm-category" placeholder="np. Akcja, Fantasy" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100 focus:outline-none focus:border-pink-400">
+                                    <input type="text" id="adm-category" placeholder="np. Akcja, Fantasy" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-pink-300/70 mb-1">Ocena (1 - 10)</label>
-                                <input type="number" step="0.1" id="adm-rating" min="0" max="10" placeholder="8.5" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100 focus:outline-none focus:border-pink-400">
+                                <input type="number" step="0.1" id="adm-rating" min="0" max="10" placeholder="8.5" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                             </div>
                             <div class="flex gap-2 pt-2">
                                 <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2.5 px-4 rounded-xl text-white transition-colors flex-1 shadow-md shadow-pink-600/30">Zapisz Anime</button>
-                                <button type="button" onclick="resetAdminForm()" class="bg-pink-950/60 hover:bg-pink-900/80 border border-pink-500/30 font-bold py-2.5 px-4 rounded-xl text-pink-200 transition-colors">Anuluj</button>
+                                <button type="button" onclick="resetAdminForm()" class="bg-pink-950/60 border border-pink-500/30 font-bold py-2.5 px-4 rounded-xl text-pink-200 transition-colors">Anuluj</button>
                             </div>
                         </form>
                     </div>
 
-                    <!-- 2. Dodawanie Odcinków -->
+                    <!-- Dodawanie Odcinków -->
                     <div class="glass-panel p-6 rounded-2xl space-y-4">
                         <h3 class="font-bold text-base text-pink-100 flex items-center gap-2"><i class="fa-solid fa-clapperboard text-pink-400"></i> Zarządzanie Odcinkami</h3>
                         <div>
                             <label class="block text-pink-300/70 mb-1 text-xs">Wybierz Serial</label>
-                            <select id="admin-anime-select" onchange="loadAdminEpisodes()" class="w-full bg-pink-950/50 border border-pink-500/20 rounded-xl p-2.5 text-pink-100 text-xs focus:outline-none focus:border-pink-400">
+                            <select id="admin-anime-select" onchange="loadAdminEpisodes()" class="w-full bg-pink-950/50 border border-pink-500/20 rounded-xl p-2.5 text-pink-100 text-xs">
                                 <option value="">-- Wybierz Anime --</option>
                             </select>
                         </div>
@@ -339,70 +499,76 @@
                                         <label class="block text-pink-300/70 text-[10px] mb-1">Nr odcinka</label>
                                         <input type="number" id="ep-number" required min="1" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2 text-pink-100">
                                     </div>
-                                    <div class="col-span-2">
-                                        <label class="block text-pink-300/70 text-[10px] mb-1">Tytuł odcinka (opcjonalnie)</label>
+                                    <div>
+                                        <label class="block text-pink-300/70 text-[10px] mb-1">Język</label>
+                                        <select id="ep-lang" class="w-full bg-pink-950/50 border border-pink-500/20 rounded-xl p-2 text-pink-100">
+                                            <option value="PL">🇵🇱 PL</option>
+                                            <option value="EN">🇬🇧 EN</option>
+                                            <option value="JP">🇯🇵 JP</option>
+                                            <option value="DE">🇩🇪 DE</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-pink-300/70 text-[10px] mb-1">Tytuł odcinka</label>
                                         <input type="text" id="ep-title" placeholder="Początek..." class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2 text-pink-100">
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-pink-300/70 text-[10px] mb-1">Link do Wideo (mp4 / iframe / embed)</label>
-                                    <input type="text" id="ep-url" required placeholder="https://..." class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2 text-pink-100">
+                                    <label class="block text-pink-300/70 text-[10px] mb-1">Odtwarzacze (VK, CDA, itp.)</label>
+                                    <input type="text" id="ep-url" required placeholder="np. CDA: https://..., VK: https://..." class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2 text-pink-100">
+                                    <span class="text-[9px] text-pink-300/50 mt-1 block">Możesz podawać nazwy, np: CDA: link, VK: link, Player 3: link</span>
                                 </div>
-                                <button type="submit" class="bg-rose-600 hover:bg-rose-500 font-bold py-2 px-3 rounded-xl text-white text-xs transition-colors w-full shadow-md shadow-rose-600/30">
+                                <button type="submit" class="bg-rose-600 hover:bg-rose-500 font-bold py-2 px-3 rounded-xl text-white text-xs w-full shadow-md shadow-rose-600/30">
                                     Dodaj Odcinek
                                 </button>
                             </form>
 
                             <div class="border-t border-pink-500/20 pt-3">
                                 <h4 class="font-bold text-xs text-pink-200 mb-2">Lista Odcinków</h4>
-                                <div id="admin-episodes-list" class="space-y-2 max-h-48 overflow-y-auto text-xs">
-                                    <p class="text-pink-300/40">Wybierz anime, aby zobaczyć odcinki.</p>
-                                </div>
+                                <div id="admin-episodes-list" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. Zarządzanie Kalendarzem / Zapowiedziami -->
+                <!-- Kalendarz -->
                 <div class="glass-panel p-6 rounded-2xl space-y-4">
                     <h3 class="font-bold text-base text-pink-100 flex items-center gap-2"><i class="fa-solid fa-calendar-plus text-pink-400"></i> Dodaj Zapowiedź do Kalendarza</h3>
                     <form onsubmit="handleAddCalendarItem(event)" class="space-y-3 text-xs">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-pink-300/70 text-[10px] mb-1">Tytuł Anime / Zapowiedzi</label>
+                                <label class="block text-pink-300/70 text-[10px] mb-1">Tytuł</label>
                                 <input type="text" id="cal-title" required placeholder="np. Solo Leveling S2" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                             </div>
                             <div>
-                                <label class="block text-pink-300/70 text-[10px] mb-1">Dzień tygodnia / Data</label>
+                                <label class="block text-pink-300/70 text-[10px] mb-1">Dzień / Data</label>
                                 <input type="text" id="cal-day" required placeholder="np. Sobota / 15 Października" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-pink-300/70 text-[10px] mb-1">Godzina / Opis</label>
-                                <input type="text" id="cal-time" placeholder="np. 18:00 / Premiera Jesień" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
+                                <input type="text" id="cal-time" placeholder="np. 18:00" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                             </div>
                             <div>
-                                <label class="block text-pink-300/70 text-[10px] mb-1">URL Zdjęcia / Baneru (opcjonalnie)</label>
+                                <label class="block text-pink-300/70 text-[10px] mb-1">URL Baneru</label>
                                 <input type="url" id="cal-image" placeholder="https://..." class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                             </div>
                         </div>
-                        <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2 px-4 rounded-xl text-white text-xs transition-colors shadow-md shadow-pink-600/30">Dodaj Zapowiedź</button>
+                        <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2 px-4 rounded-xl text-white text-xs shadow-md shadow-pink-600/30">Dodaj Zapowiedź</button>
                     </form>
                     <div class="border-t border-pink-500/20 pt-3 mt-4">
-                        <h4 class="font-bold text-xs text-pink-200 mb-2">Zapowiedzi w Kalendarzu</h4>
-                        <div id="admin-calendar-list" class="space-y-2 max-h-48 overflow-y-auto text-xs">
-                            <!-- Dynamiczna lista -->
-                        </div>
+                        <h4 class="font-bold text-xs text-pink-200 mb-2">Zapowiedzi</h4>
+                        <div id="admin-calendar-list" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
                     </div>
                 </div>
 
-                <!-- 4. Zarządzanie Ogłoszeniami -->
+                <!-- Ogłoszenia -->
                 <div class="glass-panel p-6 rounded-2xl space-y-4">
                     <h3 class="font-bold text-base text-pink-100 flex items-center gap-2"><i class="fa-solid fa-bullhorn text-pink-400"></i> Dodaj Ogłoszenie</h3>
                     <form onsubmit="handleAddAnnouncement(event)" class="space-y-3 text-xs">
                         <div>
-                            <label class="block text-pink-300/70 text-[10px] mb-1">Tytuł Ogłoszenia</label>
+                            <label class="block text-pink-300/70 text-[10px] mb-1">Tytuł</label>
                             <input type="text" id="ann-title" required class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                         </div>
                         <div>
@@ -410,19 +576,17 @@
                             <textarea id="ann-content" required rows="3" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100"></textarea>
                         </div>
                         <div>
-                            <label class="block text-pink-300/70 text-[10px] mb-1">URL Zdjęcia (opcjonalnie)</label>
+                            <label class="block text-pink-300/70 text-[10px] mb-1">URL Zdjęcia</label>
                             <input type="url" id="ann-image" placeholder="https://..." class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
                         </div>
-                        <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2 px-4 rounded-xl text-white text-xs transition-colors shadow-md shadow-pink-600/30">Opublikuj Ogłoszenie</button>
+                        <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2 px-4 rounded-xl text-white text-xs shadow-md shadow-pink-600/30">Opublikuj Ogłoszenie</button>
                     </form>
                 </div>
 
-                <!-- 5. Lista Seriali -->
+                <!-- Lista Seriali -->
                 <div class="glass-panel p-6 rounded-2xl">
                     <h3 class="font-bold text-base mb-4 text-pink-100">Katalog Seriali</h3>
-                    <div id="admin-anime-list" class="divide-y divide-pink-500/10 text-xs">
-                        <!-- Dynamiczna lista -->
-                    </div>
+                    <div id="admin-anime-list" class="divide-y divide-pink-500/10 text-xs"></div>
                 </div>
             </div>
         </section>
@@ -433,7 +597,7 @@
     <footer class="bg-purple-950/40 border-t border-pink-500/20 py-6 mt-12 z-10 relative">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs text-pink-300/50 space-y-2">
             <p class="font-jp text-sm text-pink-300/80">桜咲く未来へ ・ AnimeFlow</p>
-            <p>© 2026 AnimeFlow Orginalna platforma .</p>
+            <p>© 2026 AnimeFlow Oryginalna platforma.</p>
         </div>
     </footer>
 
@@ -441,7 +605,6 @@
     <script>
         const SUPABASE_URL = 'https://sodicdqwfxcjakgsdspb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zea9GDv7bDpjDCHgDKNazQ_6240ZBp7';
-        
         const ADMIN_PASSWORD = '20995'; 
 
         const { createClient } = supabase;
@@ -450,18 +613,153 @@
         let allAnimeData = [];
         let currentEpisodes = [];
 
-        window.onload = () => {
+        let currentUser = {
+            nickname: localStorage.getItem('af_user_nick') || '',
+            role: 'User'
+        };
+
+        let playerSettings = {
+            theme: localStorage.getItem('af_theme') || 'sakura',
+            customBg: localStorage.getItem('af_custom_bg') || '',
+            lang: localStorage.getItem('af_lang') || 'PL',
+            preferredHost: parseInt(localStorage.getItem('af_preferred_host') || '0')
+        };
+
+        window.onload = async () => {
             createSakuraPetals();
+            await checkUserRegistration();
+            applySavedTheme();
             fetchAnime();
             checkAdminAuth();
         };
 
-        // Generowanie spadających Płatków Wiśni (Sakura)
+        async function checkUserRegistration() {
+            if (!currentUser.nickname) {
+                document.getElementById('nickname-modal').classList.remove('hidden');
+            } else {
+                await fetchUserData();
+            }
+        }
+
+        async function submitNickname(e) {
+            e.preventDefault();
+            const nick = document.getElementById('user-nick-input').value.trim();
+            if (!nick) return;
+
+            currentUser.nickname = nick;
+            localStorage.setItem('af_user_nick', nick);
+            
+            try {
+                let { data: existing } = await _supabase.from('users').select('*').eq('nickname', nick).single();
+                if (!existing) {
+                    await _supabase.from('users').insert([{ nickname: nick, role: 'User' }]);
+                } else {
+                    currentUser.role = existing.role || 'User';
+                }
+            } catch(err) {
+                console.log('Rejestracja użytkownika...', err);
+            }
+
+            document.getElementById('nickname-modal').classList.add('hidden');
+            updateUserBadge();
+        }
+
+        async function fetchUserData() {
+            try {
+                let { data: user } = await _supabase.from('users').select('*').eq('nickname', currentUser.nickname).single();
+                if (user) {
+                    currentUser.role = user.role || 'User';
+                }
+            } catch(e) {}
+            updateUserBadge();
+        }
+
+        function updateUserBadge() {
+            document.getElementById('user-profile-badge').classList.remove('hidden');
+            document.getElementById('nav-nick').innerText = currentUser.nickname;
+            const roleEl = document.getElementById('nav-role');
+            roleEl.innerText = currentUser.role;
+
+            if (currentUser.role === 'VIP') {
+                roleEl.className = "text-[9px] text-amber-400 font-extrabold uppercase";
+            } else if (currentUser.role === 'Admin') {
+                roleEl.className = "text-[9px] text-rose-400 font-extrabold uppercase";
+            } else {
+                roleEl.className = "text-[9px] text-pink-300 font-extrabold uppercase";
+            }
+        }
+
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            modal.classList.toggle('hidden');
+
+            if (!modal.classList.contains('hidden')) {
+                const langRadio = document.querySelector(`input[name="player_lang"][value="${playerSettings.lang}"]`);
+                if (langRadio) langRadio.checked = true;
+
+                if (playerSettings.theme === 'custom') {
+                    document.getElementById('custom-gui-box').classList.remove('hidden');
+                }
+            }
+        }
+
+        function selectTheme(themeVal) {
+            playerSettings.theme = themeVal;
+            localStorage.setItem('af_theme', themeVal);
+
+            const customBox = document.getElementById('custom-gui-box');
+            if (themeVal === 'custom') {
+                customBox.classList.remove('hidden');
+            } else {
+                customBox.classList.add('hidden');
+            }
+
+            applySavedTheme();
+        }
+
+        function saveCustomBg() {
+            const url = document.getElementById('custom-bg-input').value.trim();
+            const warning = document.getElementById('gif-warning');
+
+            const isGif = url.toLowerCase().includes('.gif');
+            const hasVipAccess = currentUser.role === 'VIP' || currentUser.role === 'Admin';
+
+            if (isGif && !hasVipAccess) {
+                warning.classList.remove('hidden');
+                alert('Tylko osoby z rangą VIP lub Admin mogą ustawiać GIF jako własne tło!');
+                return;
+            }
+
+            warning.classList.add('hidden');
+            playerSettings.customBg = url;
+            localStorage.setItem('af_custom_bg', url);
+            applySavedTheme();
+            alert('Własne tło zostało zastosowane!');
+        }
+
+        function applySavedTheme() {
+            document.body.className = "min-h-screen flex flex-col relative overflow-x-hidden";
+            
+            if (playerSettings.theme === 'obsidian') document.body.classList.add('theme-obsidian');
+            else if (playerSettings.theme === 'monochrome') document.body.classList.add('theme-monochrome');
+            else if (playerSettings.theme === 'ocean') document.body.classList.add('theme-ocean');
+            else if (playerSettings.theme === 'cyberpunk') document.body.classList.add('theme-cyberpunk');
+            else if (playerSettings.theme === 'custom') {
+                document.body.classList.add('theme-custom');
+                if (playerSettings.customBg) {
+                    document.documentElement.style.setProperty('--custom-bg-img', `url('${playerSettings.customBg}')`);
+                }
+            }
+        }
+
+        function updateSetting(key, val) {
+            playerSettings[key] = val;
+            localStorage.setItem(`af_${key}`, val);
+        }
+
         function createSakuraPetals() {
             const container = document.getElementById('sakura-box');
-            const petalCount = 18;
-            
-            for (let i = 0; i < petalCount; i++) {
+            for (let i = 0; i < 18; i++) {
                 const petal = document.createElement('div');
                 petal.classList.add('petal');
                 petal.style.left = Math.random() * 100 + '%';
@@ -474,8 +772,7 @@
         }
 
         function showSection(sectionId) {
-            const sections = ['home', 'details', 'calendar', 'announcements', 'admin'];
-            sections.forEach(sec => {
+            ['home', 'details', 'calendar', 'announcements', 'admin'].forEach(sec => {
                 const el = document.getElementById(`sec-${sec}`);
                 if (el) el.classList.add('hidden');
             });
@@ -500,7 +797,7 @@
                 statusDiv.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> Połączono z siecią`;
                 statusDiv.className = "text-xs flex items-center gap-2 text-emerald-400 font-bold";
             } catch (err) {
-                console.error("Błąd połączenia z Supabase:", err);
+                console.error("Błąd połączenia:", err);
                 statusDiv.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-400"></i> Błąd połączenia`;
                 statusDiv.className = "text-xs flex items-center gap-2 text-rose-400 font-bold";
             }
@@ -533,14 +830,12 @@
         function renderTopRated(list) {
             const topList = document.getElementById('top-rated-list');
             const sorted = [...list].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
-            
             if (sorted.length === 0) {
                 topList.innerHTML = `<p class="text-pink-300/40 text-xs">Brak ocen</p>`;
                 return;
             }
-
             topList.innerHTML = sorted.map(item => `
-                <div class="flex items-center justify-between p-2 rounded-xl hover:bg-pink-950/40 border border-transparent hover:border-pink-500/20 transition-all cursor-pointer group" onclick="openAnimeDetails(${item.id})">
+                <div class="flex items-center justify-between p-2 rounded-xl hover:bg-pink-950/40 transition-all cursor-pointer group" onclick="openAnimeDetails(${item.id})">
                     <span class="truncate text-xs font-semibold text-pink-200/90 group-hover:text-pink-300">${item.title}</span>
                     <span class="text-amber-400 text-xs font-black shrink-0 ml-2 flex items-center gap-1"><i class="fa-solid fa-star text-[10px]"></i> ${item.rating || '-'}</span>
                 </div>
@@ -549,12 +844,10 @@
 
         async function fetchCalendar() {
             const cal = document.getElementById('calendar-list');
-            let { data: calendarItems, error } = await _supabase.from('calendar').select('*').order('created_at', { ascending: false });
-            
+            let { data: calendarItems } = await _supabase.from('calendar').select('*').order('created_at', { ascending: false });
             const ongoing = allAnimeData.filter(a => a.status && a.status.toLowerCase().includes('wychodzi'));
 
             let itemsHTML = '';
-
             if (calendarItems && calendarItems.length > 0) {
                 itemsHTML += calendarItems.map(item => `
                     <div class="glass-panel glass-panel-hover rounded-2xl overflow-hidden flex flex-col justify-between">
@@ -582,20 +875,15 @@
                 `).join('');
             }
 
-            if (!itemsHTML) {
-                cal.innerHTML = `<p class="text-pink-300/40 text-xs col-span-full">Brak nadchodzących zapowiedzi.</p>`;
-            } else {
-                cal.innerHTML = itemsHTML;
-            }
-
+            cal.innerHTML = itemsHTML || `<p class="text-pink-300/40 text-xs col-span-full">Brak zapowiedzi.</p>`;
             renderAdminCalendarList(calendarItems || []);
         }
 
         async function fetchAnnouncements() {
             const container = document.getElementById('announcements-list');
-            let { data: announcements, error } = await _supabase.from('ogloszenia').select('*').order('created_at', { ascending: false });
+            let { data: announcements } = await _supabase.from('ogloszenia').select('*').order('created_at', { ascending: false });
             
-            if (error || !announcements || announcements.length === 0) {
+            if (!announcements || announcements.length === 0) {
                 container.innerHTML = `<div class="glass-panel p-6 rounded-2xl text-xs text-pink-300/50">Brak nowych ogłoszeń.</div>`;
                 return;
             }
@@ -627,7 +915,7 @@
             content.innerHTML = `
                 <div class="flex flex-col sm:flex-row gap-6 mb-8 items-center sm:items-start">
                     <img src="${item.image_url || 'https://via.placeholder.com/300x450'}" class="w-44 rounded-2xl object-cover shadow-xl border border-pink-500/30 shrink-0">
-                    <div class="space-y-3 text-center sm:text-left">
+                    <div class="space-y-3 text-center sm:text-left flex-1">
                         <h1 class="text-2xl font-black text-white">${item.title}</h1>
                         <div class="flex flex-wrap justify-center sm:justify-start items-center gap-3 text-xs text-pink-300/80">
                             <span class="bg-pink-950/60 px-3 py-1 rounded-full border border-pink-500/20">Status: <strong class="text-pink-100">${item.status || 'Nieokreślony'}</strong></span>
@@ -638,45 +926,123 @@
                 </div>
 
                 <div class="space-y-5">
-                    <h3 class="font-bold text-sm text-pink-200 flex items-center gap-2"><i class="fa-solid fa-tv text-pink-400"></i> Odtwarzacz Video</h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-sm text-pink-200 flex items-center gap-2"><i class="fa-solid fa-tv text-pink-400"></i> Odtwarzacz Video</h3>
+                    </div>
+
                     <div id="video-container" class="aspect-video bg-black/80 rounded-2xl overflow-hidden flex items-center justify-center border border-pink-500/20 shadow-2xl">
                         <p class="text-pink-300/40 text-xs">Wybierz odcinek z listy poniżej, aby rozpocząć seans.</p>
                     </div>
 
+                    <!-- SEKCJA WYBORU HOSTINGU (VK, CDA, Player 1, Player 2) POD ODTWARZACZEM -->
+                    <div id="host-selector-container" class="hidden flex flex-wrap gap-2 items-center bg-pink-950/30 p-3 rounded-2xl border border-pink-500/20 text-xs">
+                        <span class="text-pink-300/80 font-bold mr-2 flex items-center gap-1.5"><i class="fa-solid fa-server text-pink-400"></i> Wybierz Player:</span>
+                        <div id="host-buttons-list" class="flex flex-wrap gap-2"></div>
+                    </div>
+
                     <h4 class="font-bold text-xs text-pink-300/80 mt-6">Dostępne Odcinki:</h4>
                     <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
-                        ${episodes.length > 0 ? episodes.map(ep => `
-                            <button onclick="playEpisode('${ep.video_url}')" class="bg-pink-950/40 hover:bg-pink-600 border border-pink-500/20 hover:border-pink-400 p-3 rounded-xl text-xs font-semibold transition-all flex flex-col items-center gap-1 text-center group">
-                                <span class="text-pink-100 group-hover:text-white">Odcinek ${ep.episode_number}</span>${ep.title ? `<span class="text-pink-300/50 group-hover:text-pink-200 text-[9px] truncate max-w-full">${ep.title}</span>` : ''}
+                        ${episodes.length > 0 ? episodes.map(ep => {
+                            const escapedUrl = (ep.video_url || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                            const escapedTitle = (ep.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                            const langBadge = ep.lang ? `<span class="text-[9px] bg-pink-950 px-1.5 py-0.5 rounded border border-pink-500/30 text-pink-300 font-extrabold">${ep.lang}</span>` : '';
+                            return `
+                            <button onclick="loadEpisodeData('${escapedUrl}')" class="bg-pink-950/40 hover:bg-pink-600 border border-pink-500/20 p-3 rounded-xl text-xs font-semibold transition-all flex flex-col items-center gap-1 text-center group">
+                                <div class="flex items-center gap-1">
+                                    <span class="text-pink-100 group-hover:text-white">Odc. ${ep.episode_number}</span>${langBadge}
+                                </div>
+                                ${ep.title ? `<span class="text-pink-300/50 group-hover:text-pink-200 text-[9px] truncate max-w-full">${escapedTitle}</span>` : ''}
                             </button>
-                        `).join('') : '<p class="text-pink-300/40 text-xs col-span-full">Brak dodanych odcinków.</p>'}
+                        `}).join('') : '<p class="text-pink-300/40 text-xs col-span-full">Brak dodanych odcinków.</p>'}
                     </div>
                 </div>
             `;
+
             showSection('details');
+
+            // Automatyczne odtworzenie odcinka zgodnego z preferowanym językiem
+            const preferredLang = playerSettings.lang || 'PL';
+            const matchedEp = episodes.find(e => e.lang === preferredLang) || episodes[0];
+            if (matchedEp && matchedEp.video_url) {
+                loadEpisodeData(matchedEp.video_url);
+            }
+
+            // Podpięcie obserwatora pod odtwarzacz wideo do trybu Mini-Player
+            setTimeout(() => {
+                const videoContainer = document.getElementById('video-container');
+                if (videoContainer) {
+                    playerObserver.observe(videoContainer);
+                }
+            }, 300);
+        }
+
+        // SYSTEM OBSŁUGUJĄCY SPERSONALIZOWANE NAZWY PLAYERÓW (VK, CDA, Player 1)
+        function parseHosts(rawString) {
+            if (!rawString) return [];
+            return rawString.split(',').map((item, idx) => {
+                const trimmed = item.trim();
+                if (trimmed.includes('http://') || trimmed.includes('https://')) {
+                    const parts = trimmed.split(/:(.+)/);
+                    if (parts.length >= 2 && !parts[0].startsWith('http')) {
+                        return { name: parts[0].trim(), url: parts[1].trim() };
+                    }
+                }
+                return { name: `Player ${idx + 1}`, url: trimmed };
+            }).filter(h => h.url.length > 0);
+        }
+
+        function loadEpisodeData(rawUrl) {
+            const hosts = parseHosts(rawUrl);
+            const selectorContainer = document.getElementById('host-selector-container');
+            const hostButtons = document.getElementById('host-buttons-list');
+
+            if (hosts.length > 0) {
+                selectorContainer.classList.remove('hidden');
+                
+                let activeIdx = playerSettings.preferredHost < hosts.length ? playerSettings.preferredHost : 0;
+
+                hostButtons.innerHTML = hosts.map((host, idx) => {
+                    const escapedUrl = host.url.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const isSelected = idx === activeIdx;
+                    return `
+                    <button id="host-btn-${idx}" onclick="switchHost('${escapedUrl}', ${idx}, '${rawUrl}')" 
+                        class="px-3.5 py-1.5 rounded-xl font-bold border transition-all text-xs flex items-center gap-1.5 ${isSelected ? 'bg-pink-600 border-pink-400 text-white shadow-md shadow-pink-600/30' : 'bg-pink-950/60 border-pink-500/30 text-pink-200 hover:bg-pink-900'}">
+                        <i class="fa-solid fa-circle-play text-[10px]"></i> ${host.name}
+                    </button>
+                `}).join('');
+                
+                playEpisode(hosts[activeIdx].url);
+            } else {
+                selectorContainer.classList.add('hidden');
+            }
+        }
+
+        function switchHost(url, hostIndex, rawUrl) {
+            updateSetting('preferredHost', hostIndex);
+            loadEpisodeData(rawUrl);
         }
 
         function playEpisode(url) {
             const container = document.getElementById('video-container');
-            if (url.includes('.mp4')) {
-                container.innerHTML = `<video controls class="w-full h-full"><source src="${url}" type="video/mp4">Przeglądarka nie obsługuje wideo.</video>`;
+            if (url.endsWith('.mp4') || url.includes('.mp4?')) {
+                container.innerHTML = `<video controls autoplay class="w-full h-full"><source src="${url}" type="video/mp4">Przeglądarka nie obsługuje wideo.</video>`;
             } else {
                 container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
             }
         }
 
         function filterAnime() {
+            showSection('home');
             const query = document.getElementById('search-input').value.toLowerCase();
             const filtered = allAnimeData.filter(item => item.title && item.title.toLowerCase().includes(query));
             renderAnimeGrid(filtered);
         }
 
-        // --- ADMIN LOGIN ---
+        // --- ADMIN LOGIN & USERS ---
 
         function handleAdminLogin(e) {
             e.preventDefault();
-            const input = document.getElementById('admin-pass-input').value;
-            if (input === ADMIN_PASSWORD) {
+            if (document.getElementById('admin-pass-input').value === ADMIN_PASSWORD) {
                 sessionStorage.setItem('isAdminLoggedIn', 'true');
                 checkAdminAuth();
             } else {
@@ -689,6 +1055,7 @@
             if (isLoggedIn) {
                 document.getElementById('admin-auth').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
+                fetchUsersList();
             } else {
                 document.getElementById('admin-auth').classList.remove('hidden');
                 document.getElementById('admin-dashboard').classList.add('hidden');
@@ -700,7 +1067,51 @@
             checkAdminAuth();
         }
 
-        // --- ADMIN OPERATIONS ---
+        async function fetchUsersList() {
+            const container = document.getElementById('admin-users-list');
+            try {
+                let { data: users } = await _supabase.from('users').select('*').order('created_at', { ascending: false });
+                if (!users || users.length === 0) {
+                    container.innerHTML = '<p class="text-pink-300/40">Brak zarejestrowanych użytkowników.</p>';
+                    return;
+                }
+                container.innerHTML = users.map(u => `
+                    <div class="flex items-center justify-between bg-pink-950/30 border border-pink-500/20 p-2 rounded-lg">
+                        <span class="text-pink-100 font-bold">${u.nickname}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full ${u.role === 'VIP' ? 'bg-amber-950 text-amber-300 border border-amber-500/30' : u.role === 'Admin' ? 'bg-rose-950 text-rose-300 border border-rose-500/30' : 'bg-pink-950 text-pink-300'} font-black uppercase">${u.role || 'User'}</span>
+                    </div>
+                `).join('');
+            } catch(e) {
+                container.innerHTML = '<p class="text-pink-300/40">Brak połączenia z tabelą users.</p>';
+            }
+        }
+
+        async function handleAssignRole(e) {
+            e.preventDefault();
+            const nick = document.getElementById('adm-user-nick').value.trim();
+            const role = document.getElementById('adm-user-role').value;
+
+            try {
+                let { data: user } = await _supabase.from('users').select('*').eq('nickname', nick).single();
+                if (!user) {
+                    await _supabase.from('users').insert([{ nickname: nick, role: role }]);
+                } else {
+                    await _supabase.from('users').update({ role: role }).eq('nickname', nick);
+                }
+                alert(`Pomyślnie nadano rangę ${role} dla ${nick}!`);
+                document.getElementById('adm-user-nick').value = '';
+                fetchUsersList();
+
+                if (nick === currentUser.nickname) {
+                    currentUser.role = role;
+                    updateUserBadge();
+                }
+            } catch(err) {
+                alert('Błąd nadawania rangi: ' + err.message);
+            }
+        }
+
+        // --- CRUD ANIME & EPISODES ---
 
         function populateAdminSelect() {
             const select = document.getElementById('admin-anime-select');
@@ -725,8 +1136,8 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="editAnime(${a.id})" class="bg-pink-950/60 hover:bg-pink-900 border border-pink-500/30 text-pink-200 px-3 py-1 rounded-lg text-xs font-semibold transition-colors">Edytuj</button>
-                        <button onclick="deleteAnime(${a.id})" class="bg-rose-950/60 hover:bg-rose-900 border border-rose-500/30 text-rose-300 px-3 py-1 rounded-lg text-xs font-semibold transition-colors">Usuń</button>
+                        <button onclick="editAnime(${a.id})" class="bg-pink-950/60 hover:bg-pink-900 border border-pink-500/30 text-pink-200 px-3 py-1 rounded-lg text-xs font-semibold">Edytuj</button>
+                        <button onclick="deleteAnime(${a.id})" class="bg-rose-950/60 hover:bg-rose-900 border border-rose-500/30 text-rose-300 px-3 py-1 rounded-lg text-xs font-semibold">Usuń</button>
                     </div>
                 </div>
             `).join('');
@@ -742,13 +1153,9 @@
             const rating = parseFloat(document.getElementById('adm-rating').value) || null;
 
             if (id) {
-                const { error } = await _supabase.from('anime').update({ title, image_url, status, category, rating }).eq('id', id);
-                if (error) alert('Błąd edycji: ' + error.message);
-                else alert('Zaktualizowano!');
+                await _supabase.from('anime').update({ title, image_url, status, category, rating }).eq('id', id);
             } else {
-                const { error } = await _supabase.from('anime').insert([{ title, image_url, status, category, rating }]);
-                if (error) alert('Błąd dodawania: ' + error.message);
-                else alert('Dodano pomyślnie!');
+                await _supabase.from('anime').insert([{ title, image_url, status, category, rating }]);
             }
 
             resetAdminForm();
@@ -765,23 +1172,18 @@
             document.getElementById('adm-status').value = item.status || '';
             document.getElementById('adm-category').value = item.category || '';
             document.getElementById('adm-rating').value = item.rating || '';
-
-            document.getElementById('admin-form-title').innerText = 'Edytuj Anime';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function deleteAnime(id) {
-            if (!confirm('Usunąć to anime wraz z odcinkami?')) return;
-
-            const { error } = await _supabase.from('anime').delete().eq('id', id);
-            if (error) alert('Błąd usuwania: ' + error.message);
-            else fetchAnime();
+            if (!confirm('Usunąć to anime?')) return;
+            await _supabase.from('anime').delete().eq('id', id);
+            fetchAnime();
         }
 
         function resetAdminForm() {
             document.getElementById('adm-id').value = '';
             document.getElementById('add-anime-form').reset();
-            document.getElementById('admin-form-title').innerText = 'Dodaj nowe Anime';
         }
 
         async function loadAdminEpisodes() {
@@ -809,7 +1211,7 @@
 
             list.innerHTML = currentEpisodes.map(ep => `
                 <div class="flex items-center justify-between bg-pink-950/30 border border-pink-500/20 p-2 rounded-lg">
-                    <span class="text-pink-100 font-medium">Odcinek ${ep.episode_number}: ${ep.title || 'Bez tytułu'}</span>
+                    <span class="text-pink-100 font-medium">Odcinek ${ep.episode_number} [${ep.lang || 'PL'}]: ${ep.title || 'Bez tytułu'}</span>
                     <button onclick="deleteEpisode(${ep.id})" class="text-rose-400 hover:text-rose-300 font-bold px-2">Usuń</button>
                 </div>
             `).join('');
@@ -819,29 +1221,22 @@
             e.preventDefault();
             const anime_id = document.getElementById('admin-anime-select').value;
             const episode_number = parseInt(document.getElementById('ep-number').value);
+            const lang = document.getElementById('ep-lang').value;
             const title = document.getElementById('ep-title').value;
             const video_url = document.getElementById('ep-url').value;
 
-            const { error } = await _supabase.from('episodes').insert([{ anime_id, episode_number, title, video_url }]);
-            if (error) {
-                alert('Błąd dodawania odcinka: ' + error.message);
-            } else {
-                document.getElementById('ep-number').value = '';
-                document.getElementById('ep-title').value = '';
-                document.getElementById('ep-url').value = '';
-                loadAdminEpisodes();
-            }
+            await _supabase.from('episodes').insert([{ anime_id, episode_number, lang, title, video_url }]);
+            document.getElementById('ep-number').value = '';
+            document.getElementById('ep-title').value = '';
+            document.getElementById('ep-url').value = '';
+            loadAdminEpisodes();
         }
 
         async function deleteEpisode(id) {
             if (!confirm('Usunąć odcinek?')) return;
-
-            const { error } = await _supabase.from('episodes').delete().eq('id', id);
-            if (error) alert('Błąd: ' + error.message);
-            else loadAdminEpisodes();
+            await _supabase.from('episodes').delete().eq('id', id);
+            loadAdminEpisodes();
         }
-
-        // --- ZAPOWIEDZI & KALENDARZ ---
 
         async function handleAddCalendarItem(e) {
             e.preventDefault();
@@ -850,17 +1245,12 @@
             const time = document.getElementById('cal-time').value;
             const image_url = document.getElementById('cal-image').value;
 
-            const { error } = await _supabase.from('calendar').insert([{ title, day, time, image_url }]);
-            if (error) {
-                alert('Błąd dodawania: ' + error.message);
-            } else {
-                alert('Dodano zapowiedź!');
-                document.getElementById('cal-title').value = '';
-                document.getElementById('cal-day').value = '';
-                document.getElementById('cal-time').value = '';
-                document.getElementById('cal-image').value = '';
-                fetchCalendar();
-            }
+            await _supabase.from('calendar').insert([{ title, day, time, image_url }]);
+            document.getElementById('cal-title').value = '';
+            document.getElementById('cal-day').value = '';
+            document.getElementById('cal-time').value = '';
+            document.getElementById('cal-image').value = '';
+            fetchCalendar();
         }
 
         function renderAdminCalendarList(items) {
@@ -879,14 +1269,10 @@
         }
 
         async function deleteCalendarItem(id) {
-            if (!confirm('Usunąć zapowiedź?')) return;
-
-            const { error } = await _supabase.from('calendar').delete().eq('id', id);
-            if (error) alert('Błąd: ' + error.message);
-            else fetchCalendar();
+            if (!confirm('Usunąć?')) return;
+            await _supabase.from('calendar').delete().eq('id', id);
+            fetchCalendar();
         }
-
-        // --- OGŁOSZENIA ---
 
         async function handleAddAnnouncement(e) {
             e.preventDefault();
@@ -894,17 +1280,35 @@
             const content = document.getElementById('ann-content').value;
             const image_url = document.getElementById('ann-image').value;
 
-            const { error } = await _supabase.from('ogloszenia').insert([{ title, content, image_url }]);
-            if (error) {
-                alert('Błąd publikacji: ' + error.message);
-            } else {
-                alert('Ogłoszenie dodane!');
-                document.getElementById('ann-title').value = '';
-                document.getElementById('ann-content').value = '';
-                document.getElementById('ann-image').value = '';
-                fetchAnnouncements();
-            }
+            await _supabase.from('ogloszenia').insert([{ title, content, image_url }]);
+            document.getElementById('ann-title').value = '';
+            document.getElementById('ann-content').value = '';
+            document.getElementById('ann-image').value = '';
+            fetchAnnouncements();
         }
+
+        // --- MINI PLAYER OBSERVER ---
+        const playerObserver = new IntersectionObserver(([entry]) => {
+            const videoContainer = document.getElementById('video-container');
+            if (!videoContainer) return;
+
+            if (!entry.isIntersecting && videoContainer.querySelector('iframe, video')) {
+                videoContainer.classList.add('mini-player-active');
+            } else {
+                videoContainer.classList.remove('mini-player-active');
+            }
+        }, { threshold: 0.1 });
+
+        // --- UI CLICK SFX ---
+        const uiClickSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+        uiClickSfx.volume = 0.15;
+
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('button, a, .glass-panel-hover, [onclick]')) {
+                uiClickSfx.currentTime = 0;
+                uiClickSfx.play().catch(() => {});
+            }
+        });
     </script>
 </body>
 </html>
