@@ -128,6 +128,12 @@
             100% { top: 110%; transform: translateX(120px) rotate(360deg); opacity: 0; }
         }
 
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .live-dot { animation: pulse-live 2s infinite; }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #110915; }
         ::-webkit-scrollbar-thumb { background: #831843; border-radius: 4px; }
@@ -135,7 +141,6 @@
 
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* Styl dla odtwarzacza w trybie Mini-Player */
         .mini-player-active {
             position: fixed !important;
             bottom: 20px !important;
@@ -148,9 +153,46 @@
             overflow: hidden;
             transition: all 0.3s ease-in-out;
         }
+
+        #intro-screen {
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        #intro-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #activity-toast {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #activity-toast.toast-hidden {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            pointer-events: none;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col relative overflow-x-hidden">
+<body class="min-h-screen flex flex-col relative overflow-x-hidden pb-12">
+
+    <!-- EKRAN POWITALNY INTRO -->
+    <div id="intro-screen" class="fixed inset-0 bg-black z-[999] flex flex-col items-center justify-center p-6 text-center select-none">
+        <div class="space-y-6 max-w-md w-full flex flex-col items-center">
+            <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-pink-500/50 shadow-[0_0_30px_rgba(236,72,153,0.3)] overflow-hidden flex items-center justify-center bg-zinc-900">
+                <i id="intro-avatar-icon" class="fa-solid fa-user text-zinc-500 text-5xl"></i>
+                <img id="intro-avatar-img" src="" class="w-full h-full object-cover hidden">
+            </div>
+            
+            <div class="space-y-2">
+                <h2 id="intro-nick" class="text-2xl sm:text-3xl font-black tracking-widest text-white uppercase">
+                    [Wczytywanie...]
+                </h2>
+                <p id="intro-motto" class="text-sm sm:text-base text-pink-300/80 font-medium italic">
+                    ...
+                </p>
+            </div>
+        </div>
+    </div>
 
     <!-- Tło z Płatkami Sakury -->
     <div class="sakura-container" id="sakura-box"></div>
@@ -158,19 +200,26 @@
     <div class="japanese-watermark text-[25vw] top-10 right-[-5vw]">桜</div>
     <div class="japanese-watermark text-[20vw] bottom-10 left-[-3vw]">アニメ</div>
 
-    <!-- MODAL - Nickname -->
+    <!-- MODAL - Nickname & Avatar -->
     <div id="nickname-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-6 rounded-2xl text-center space-y-4 border border-pink-500/40 shadow-2xl">
-            <div class="w-14 h-14 bg-pink-950/80 rounded-full border border-pink-400/40 flex items-center justify-center mx-auto shadow-lg shadow-pink-500/20">
+            <div class="w-14 h-14 bg-pink-950/85 rounded-full border border-pink-400/40 flex items-center justify-center mx-auto shadow-lg shadow-pink-500/20 overflow-hidden">
                 <i class="fa-solid fa-user-ninja text-pink-400 text-2xl"></i>
             </div>
             <div>
                 <h3 class="text-base font-bold text-white">Witaj na AnimeFlow!</h3>
-                <p class="text-xs text-pink-300/70 mt-1">Podaj swój pseudonim, aby móc korzystać ze strony.</p>
+                <p class="text-xs text-pink-300/70 mt-1">Podaj swój pseudonim i opcjonalny awatar.</p>
             </div>
-            <form onsubmit="submitNickname(event)" class="space-y-3">
-                <input type="text" id="user-nick-input" required placeholder="Twój nick..." class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-2.5 text-pink-100 text-xs text-center focus:outline-none focus:border-pink-400">
-                <button type="submit" class="w-full bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-bold py-2 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30">Zapisz i Wejdź</button>
+            <form onsubmit="submitNickname(event)" class="space-y-3 text-left">
+                <div>
+                    <label class="text-[10px] text-pink-300/80 block mb-1">Twój Nick *</label>
+                    <input type="text" id="user-nick-input" required placeholder="np. Th3y1" class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-2.5 text-pink-100 text-xs focus:outline-none focus:border-pink-400">
+                </div>
+                <div>
+                    <label class="text-[10px] text-pink-300/80 block mb-1">URL Awataru (opcjonalnie)</label>
+                    <input type="url" id="user-avatar-input" placeholder="https://... (obrazek)" class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-2.5 text-pink-100 text-xs focus:outline-none focus:border-pink-400">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30 mt-2">Zapisz i Wejdź</button>
             </form>
         </div>
     </div>
@@ -191,6 +240,14 @@
 
             <div class="p-6 space-y-5 text-xs">
                 
+                <div class="space-y-2 border-b border-pink-500/15 pb-4">
+                    <label class="text-pink-200 font-semibold block">Zdjęcie Profilowe (Awatar URL)</label>
+                    <div class="flex gap-2">
+                        <input type="url" id="settings-avatar-input" placeholder="Wklej bezpośredni URL do obrazka..." class="flex-1 bg-pink-950/40 border border-pink-500/30 rounded-xl px-3 py-2 text-pink-100 placeholder-pink-300/30 text-xs focus:outline-none focus:border-pink-400">
+                        <button onclick="saveSettingsAvatar()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shrink-0">Zmień</button>
+                    </div>
+                </div>
+
                 <div class="space-y-2">
                     <label class="text-pink-200 font-semibold block">Styl Wizualny (GUI)</label>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -286,7 +343,6 @@
                     <span class="font-jp text-2xl tracking-widest text-white pink-glow-text flex items-center gap-2">
                         アニメ<span class="text-pink-400 font-sans font-black tracking-normal">FLOW</span>
                     </span>
-                    <span class="text-[10px] text-pink-300/60 tracking-widest uppercase -mt-1 font-bold">桜・アニメストリーミング</span>
                 </div>
             </div>
             
@@ -294,18 +350,24 @@
                 <button onclick="showSection('home')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-house-kimono text-pink-400"></i> Główna</button>
                 <button onclick="showSection('calendar')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar-heart text-pink-400"></i> Kalendarz</button>
                 <button onclick="showSection('announcements')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-scroll text-pink-400"></i> Ogłoszenia</button>
-                <button onclick="showSection('admin')" class="text-pink-100/40 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-user-ninja text-pink-500"></i> Admin</button>
+                <button onclick="openRandomAnime()" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-dice text-pink-400"></i> Losuj</button>
             </nav>
 
             <div class="flex items-center gap-3">
                 <div class="relative w-32 sm:w-48">
-                    <input type="text" id="search-input" oninput="filterAnime()" placeholder="Szukaj..." 
+                    <input type="text" id="search-input" oninput="filterAnime()" placeholder="Szukaj... (/)" 
                         class="w-full bg-pink-950/30 text-xs text-pink-100 placeholder-pink-300/40 px-3 py-2 pl-8 rounded-full border border-pink-500/20 focus:outline-none focus:border-pink-400 transition-all">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-pink-400/60 text-xs"></i>
                 </div>
 
-                <div id="user-profile-badge" class="hidden sm:flex items-center gap-2 bg-pink-950/50 border border-pink-500/30 px-3 py-1.5 rounded-full text-xs">
-                    <i class="fa-solid fa-circle-user text-pink-400 text-sm"></i>
+                <div id="user-profile-badge" class="hidden sm:flex items-center gap-2.5 bg-pink-950/50 border border-pink-500/30 px-3.5 py-1.5 rounded-full text-xs">
+                    <div class="relative">
+                        <div id="nav-avatar-box" class="w-6 h-6 rounded-full bg-pink-900 border border-pink-400/40 overflow-hidden flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-user text-pink-300 text-[10px]" id="nav-avatar-icon"></i>
+                            <img id="nav-avatar-img" src="" class="w-full h-full object-cover hidden">
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full border border-black live-dot"></span>
+                    </div>
                     <div class="flex flex-col text-left leading-tight">
                         <span id="nav-nick" class="font-bold text-white text-[11px]">...</span>
                         <span id="nav-role" class="text-[9px] text-pink-300 font-extrabold uppercase">User</span>
@@ -318,6 +380,10 @@
                     <span class="hidden md:inline">Discord</span>
                 </a>
 
+                <button onclick="cycleThemeQuick()" class="w-9 h-9 rounded-full bg-pink-950/60 border border-pink-500/30 hover:bg-pink-900 text-pink-300 hover:text-white flex items-center justify-center transition-all shrink-0" title="Szybka zmiana motywu">
+                    <i class="fa-solid fa-palette text-sm"></i>
+                </button>
+
                 <button onclick="toggleSettingsModal()" class="w-9 h-9 rounded-full bg-pink-950/60 border border-pink-500/30 hover:bg-pink-900 text-pink-300 hover:text-white flex items-center justify-center transition-all shrink-0" title="Ustawienia">
                     <i class="fa-solid fa-gear text-sm"></i>
                 </button>
@@ -326,41 +392,41 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 z-10 relative">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 z-10 relative space-y-8">
         
+        <!-- SEC: Kontynuuj Oglądanie (Baner) -->
+        <div id="continue-watching-box" class="hidden glass-panel p-4 sm:p-5 rounded-2xl border border-pink-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-pink-900/60 border border-pink-400/40 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-play text-pink-300 text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] text-pink-300/70 uppercase font-extrabold tracking-wider block">Ostatnio Oglądane</span>
+                    <h3 id="cw-title" class="text-sm font-bold text-white">...</h3>
+                    <p id="cw-ep" class="text-xs text-pink-300/90 font-medium">Odcinek ...</p>
+                </div>
+            </div>
+            <button id="cw-btn" class="w-full sm:w-auto bg-pink-600 hover:bg-pink-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30 shrink-0 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Kontynuuj
+            </button>
+        </div>
+
         <!-- SECTION: Home -->
         <section id="sec-home">
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <div class="lg:col-span-3">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-xl font-extrabold flex items-center gap-3 text-white">
-                            <span class="w-2 h-7 bg-pink-500 rounded-full inline-block shadow-[0_0_10px_#ec4899]"></span>
-                            <span class="font-jp text-pink-300 text-2xl mr-1">新作</span> Najnowsze & Popularne Serie
-                        </h2>
-                    </div>
-
-                    <div id="anime-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-                        <div class="col-span-full text-center py-12 text-pink-300/50 font-medium">🌸 Ładowanie bazy anime...</div>
+            <div class="w-full space-y-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <h2 class="text-xl font-extrabold flex items-center gap-3 text-white">
+                        <span class="w-2 h-7 bg-pink-500 rounded-full inline-block shadow-[0_0_10px_#ec4899]"></span>
+                        <span class="font-jp text-pink-300 text-2xl mr-1">新作</span> Katalog Serii
+                    </h2>
+                    
+                    <div id="genres-filter-bar" class="flex flex-wrap gap-1.5 text-xs">
+                        <button onclick="filterByCategory('all')" class="genre-btn bg-pink-600 text-white font-bold px-3 py-1 rounded-full border border-pink-400 transition-all">Wszystkie</button>
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div class="glass-panel rounded-2xl p-5 border border-pink-500/20">
-                        <h3 class="font-bold text-sm text-pink-200 mb-4 flex items-center gap-2 border-b border-pink-500/20 pb-3">
-                            <i class="fa-solid fa-fan text-pink-400 animate-spin" style="animation-duration: 8s;"></i> 
-                            <span class="font-jp text-pink-300">人気</span> Najlepiej Oceniane
-                        </h3>
-                        <div id="top-rated-list" class="space-y-2 text-xs">
-                            <p class="text-pink-300/40">Brak pozycji</p>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel rounded-2xl p-5 border border-pink-500/20">
-                        <h3 class="font-bold text-xs uppercase tracking-wider text-pink-300/70 mb-3">Status Sieci</h3>
-                        <div id="db-status" class="text-xs flex items-center gap-2 text-pink-400">
-                            <i class="fa-solid fa-spinner animate-spin"></i> Łączenie z serwerem...
-                        </div>
-                    </div>
+                <div id="anime-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+                    <div class="col-span-full text-center py-12 text-pink-300/50 font-medium">🌸 Ładowanie bazy anime...</div>
                 </div>
             </div>
         </section>
@@ -391,213 +457,23 @@
             <div id="announcements-list" class="space-y-6"></div>
         </section>
 
-        <!-- SECTION: Admin Panel -->
-        <section id="sec-admin" class="hidden">
-            <h2 class="text-2xl font-extrabold mb-6 flex items-center gap-3 text-white">
-                <span class="w-2 h-7 bg-pink-500 rounded-full inline-block shadow-[0_0_10px_#ec4899]"></span>
-                <span class="font-jp text-pink-300 text-3xl">管理</span> Panel Administratora
-            </h2>
-
-            <div id="admin-auth" class="max-w-md mx-auto glass-panel p-8 rounded-2xl text-center space-y-5 border border-pink-500/30">
-                <div class="w-16 h-16 bg-pink-950/80 rounded-full border border-pink-400/40 flex items-center justify-center mx-auto shadow-lg shadow-pink-500/20">
-                    <i class="fa-solid fa-key text-pink-400 text-2xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-white">Weryfikacja Tożsamości</h3>
-                    <p class="text-xs text-pink-300/60 mt-1">Podaj kod dostępu administracyjnego.</p>
-                </div>
-                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                    <input type="password" id="admin-pass-input" placeholder="Hasło..." required class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-3 text-pink-100 text-xs focus:outline-none focus:border-pink-400 text-center tracking-widest">
-                    <button type="submit" class="w-full bg-gradient-to-r from-pink-600 to-rose-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30">Zaloguj</button>
-                </form>
-            </div>
-
-            <!-- ADMIN DASHBOARD -->
-            <div id="admin-dashboard" class="hidden space-y-8">
-                <div class="flex justify-between items-center glass-panel p-4 rounded-xl">
-                    <span class="text-xs text-pink-300 font-bold flex items-center gap-2"><i class="fa-solid fa-shield-halved text-pink-400"></i> Przyznano uprawnienia administratora</span>
-                    <button onclick="adminLogout()" class="bg-pink-950/60 hover:bg-pink-900 border border-pink-500/30 text-xs px-4 py-1.5 rounded-full text-pink-200 transition-colors"><i class="fa-solid fa-right-from-bracket"></i> Wyloguj</button>
-                </div>
-
-                <!-- Rangi Użytkowników -->
-                <div class="glass-panel p-6 rounded-2xl space-y-4">
-                    <h3 class="font-bold text-base text-pink-100 flex items-center gap-2"><i class="fa-solid fa-user-gear text-pink-400"></i> Zarządzanie Rangami Użytkowników</h3>
-                    <form onsubmit="handleAssignRole(event)" class="space-y-3 text-xs">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-pink-300/70 text-[10px] mb-1">Nick Użytkownika</label>
-                                <input type="text" id="adm-user-nick" required placeholder="np. AnimeFan99" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                            </div>
-                            <div>
-                                <label class="block text-pink-300/70 text-[10px] mb-1">Wybierz Rangę</label>
-                                <select id="adm-user-role" class="w-full bg-pink-950/50 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                                    <option value="User">User (Zwykły)</option>
-                                    <option value="VIP">VIP (Dostęp do GIF Custom GUI)</option>
-                                    <option value="Admin">Admin (Pełny dostęp)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2 px-4 rounded-xl text-white text-xs transition-colors shadow-md shadow-pink-600/30">Zapisz Rangę</button>
-                    </form>
-
-                    <div class="border-t border-pink-500/20 pt-3">
-                        <h4 class="font-bold text-xs text-pink-200 mb-2">Zarejestrowani Użytkownicy</h4>
-                        <div id="admin-users-list" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Dodawanie Anime -->
-                    <div class="glass-panel p-6 rounded-2xl">
-                        <h3 id="admin-form-title" class="font-bold text-base mb-4 text-pink-100 flex items-center gap-2"><i class="fa-solid fa-plus text-pink-400"></i> Dodaj nowe Anime</h3>
-                        <form id="add-anime-form" onsubmit="handleSaveAnime(event)" class="space-y-4 text-xs">
-                            <input type="hidden" id="adm-id">
-                            <div>
-                                <label class="block text-pink-300/70 mb-1">Tytuł</label>
-                                <input type="text" id="adm-title" required class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                            </div>
-                            <div>
-                                <label class="block text-pink-300/70 mb-1">URL Okładki</label>
-                                <input type="url" id="adm-image" required class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-pink-300/70 mb-1">Status</label>
-                                    <input type="text" id="adm-status" placeholder="np. Wychodzi / Zakończone" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                                </div>
-                                <div>
-                                    <label class="block text-pink-300/70 mb-1">Kategoria</label>
-                                    <input type="text" id="adm-category" placeholder="np. Akcja, Fantasy" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-pink-300/70 mb-1">Ocena (1 - 10)</label>
-                                <input type="number" step="0.1" id="adm-rating" min="0" max="10" placeholder="8.5" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                            </div>
-                            <div class="flex gap-2 pt-2">
-                                <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2.5 px-4 rounded-xl text-white transition-colors flex-1 shadow-md shadow-pink-600/30">Zapisz Anime</button>
-                                <button type="button" onclick="resetAdminForm()" class="bg-pink-950/60 border border-pink-500/30 font-bold py-2.5 px-4 rounded-xl text-pink-200 transition-colors">Anuluj</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Dodawanie Odcinków -->
-                    <div class="glass-panel p-6 rounded-2xl space-y-4">
-                        <h3 class="font-bold text-base text-pink-100 flex items-center gap-2"><i class="fa-solid fa-clapperboard text-pink-400"></i> Zarządzanie Odcinkami</h3>
-                        <div>
-                            <label class="block text-pink-300/70 mb-1 text-xs">Wybierz Serial</label>
-                            <select id="admin-anime-select" onchange="loadAdminEpisodes()" class="w-full bg-pink-950/50 border border-pink-500/20 rounded-xl p-2.5 text-pink-100 text-xs">
-                                <option value="">-- Wybierz Anime --</option>
-                            </select>
-                        </div>
-
-                        <div id="episode-form-container" class="hidden border-t border-pink-500/20 pt-4 mt-4 space-y-4">
-                            <h4 class="font-bold text-xs text-pink-200">Dodaj Nowy Odcinek</h4>
-                            <form onsubmit="handleAddEpisode(event)" class="space-y-3 text-xs">
-                                <div class="grid grid-cols-3 gap-2">
-                                    <div>
-                                        <label class="block text-pink-300/70 text-[10px] mb-1">Nr odcinka</label>
-                                        <input type="number" id="ep-number" required min="1" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2 text-pink-100">
-                                    </div>
-                                    <div>
-                                        <label class="block text-pink-300/70 text-[10px] mb-1">Język</label>
-                                        <select id="ep-lang" class="w-full bg-pink-950/50 border border-pink-500/20 rounded-xl p-2 text-pink-100">
-                                            <option value="PL">🇵🇱 PL</option>
-                                            <option value="EN">🇬🇧 EN</option>
-                                            <option value="JP">🇯🇵 JP</option>
-                                            <option value="DE">🇩🇪 DE</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-pink-300/70 text-[10px] mb-1">Tytuł odcinka</label>
-                                        <input type="text" id="ep-title" placeholder="Początek..." class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2 text-pink-100">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="block text-pink-300/70 text-[10px] mb-1">Odtwarzacze (VK, CDA, itp.)</label>
-                                    <input type="text" id="ep-url" required placeholder="np. CDA: https://..., VK: https://..." class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2 text-pink-100">
-                                    <span class="text-[9px] text-pink-300/50 mt-1 block">Możesz podawać nazwy, np: CDA: link, VK: link, Player 3: link</span>
-                                </div>
-                                <button type="submit" class="bg-rose-600 hover:bg-rose-500 font-bold py-2 px-3 rounded-xl text-white text-xs w-full shadow-md shadow-rose-600/30">
-                                    Dodaj Odcinek
-                                </button>
-                            </form>
-
-                            <div class="border-t border-pink-500/20 pt-3">
-                                <h4 class="font-bold text-xs text-pink-200 mb-2">Lista Odcinków</h4>
-                                <div id="admin-episodes-list" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kalendarz -->
-                <div class="glass-panel p-6 rounded-2xl space-y-4">
-                    <h3 class="font-bold text-base text-pink-100 flex items-center gap-2"><i class="fa-solid fa-calendar-plus text-pink-400"></i> Dodaj Zapowiedź do Kalendarza</h3>
-                    <form onsubmit="handleAddCalendarItem(event)" class="space-y-3 text-xs">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-pink-300/70 text-[10px] mb-1">Tytuł</label>
-                                <input type="text" id="cal-title" required placeholder="np. Solo Leveling S2" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                            </div>
-                            <div>
-                                <label class="block text-pink-300/70 text-[10px] mb-1">Dzień / Data</label>
-                                <input type="text" id="cal-day" required placeholder="np. Sobota / 15 Października" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-pink-300/70 text-[10px] mb-1">Godzina / Opis</label>
-                                <input type="text" id="cal-time" placeholder="np. 18:00" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                            </div>
-                            <div>
-                                <label class="block text-pink-300/70 text-[10px] mb-1">URL Baneru</label>
-                                <input type="url" id="cal-image" placeholder="https://..." class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                            </div>
-                        </div>
-                        <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2 px-4 rounded-xl text-white text-xs shadow-md shadow-pink-600/30">Dodaj Zapowiedź</button>
-                    </form>
-                    <div class="border-t border-pink-500/20 pt-3 mt-4">
-                        <h4 class="font-bold text-xs text-pink-200 mb-2">Zapowiedzi</h4>
-                        <div id="admin-calendar-list" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
-                    </div>
-                </div>
-
-                <!-- Ogłoszenia -->
-                <div class="glass-panel p-6 rounded-2xl space-y-4">
-                    <h3 class="font-bold text-base text-pink-100 flex items-center gap-2"><i class="fa-solid fa-bullhorn text-pink-400"></i> Dodaj Ogłoszenie</h3>
-                    <form onsubmit="handleAddAnnouncement(event)" class="space-y-3 text-xs">
-                        <div>
-                            <label class="block text-pink-300/70 text-[10px] mb-1">Tytuł</label>
-                            <input type="text" id="ann-title" required class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                        </div>
-                        <div>
-                            <label class="block text-pink-300/70 text-[10px] mb-1">Treść</label>
-                            <textarea id="ann-content" required rows="3" class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100"></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-pink-300/70 text-[10px] mb-1">URL Zdjęcia</label>
-                            <input type="url" id="ann-image" placeholder="https://..." class="w-full bg-pink-950/30 border border-pink-500/20 rounded-xl p-2.5 text-pink-100">
-                        </div>
-                        <button type="submit" class="bg-pink-600 hover:bg-pink-500 font-bold py-2 px-4 rounded-xl text-white text-xs shadow-md shadow-pink-600/30">Opublikuj Ogłoszenie</button>
-                    </form>
-                </div>
-
-                <!-- Lista Seriali -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <h3 class="font-bold text-base mb-4 text-pink-100">Katalog Seriali</h3>
-                    <div id="admin-anime-list" class="divide-y divide-pink-500/10 text-xs"></div>
-                </div>
-            </div>
-        </section>
-
     </main>
+
+    <!-- Powiadomienie Realtime o rzeczywistym oglądaniu na żywo -->
+    <div id="activity-toast" class="toast-hidden fixed bottom-4 left-4 z-50 max-w-sm bg-pink-950/90 border border-pink-500/40 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-pink-900 border border-pink-400/40 flex items-center justify-center shrink-0 overflow-hidden">
+            <i class="fa-solid fa-circle-play text-pink-300 text-sm"></i>
+        </div>
+        <p id="activity-text" class="text-xs text-pink-100 font-medium leading-snug">
+            <!-- Prawdziwy tekst transmisji z Supabase -->
+        </p>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-purple-950/40 border-t border-pink-500/20 py-6 mt-12 z-10 relative">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-pink-300/50 space-y-2">
-            <p class="font-jp text-sm text-pink-300/80">桜咲く未来へ ・ AnimeFlow</p>
-            <p>© 2026 AnimeFlow Oryginalna platforma.</p>
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-pink-300/60 space-y-1.5">
+            <p class="font-jp text-sm text-pink-300/90">桜咲く未来へ ・ AnimeFlow</p>
+            <p>© 2026 AnimeFlow. Stworzone z pasją do oglądania w nocy.</p>
         </div>
     </footer>
 
@@ -606,15 +482,17 @@
         const SUPABASE_URL = 'https://sodicdqwfxcjakgsdspb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_zea9GDv7bDpjDCHgDKNazQ_6240ZBp7';
 
-
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let allAnimeData = [];
         let currentEpisodes = [];
+        let activeCategory = 'all';
+        let realtimeChannel = null;
 
         let currentUser = {
             nickname: localStorage.getItem('af_user_nick') || '',
+            avatar: localStorage.getItem('af_user_avatar') || '',
             role: 'User'
         };
 
@@ -625,13 +503,136 @@
             preferredHost: parseInt(localStorage.getItem('af_preferred_host') || '0')
         };
 
+        const mottosList = [
+            "Lepiej po tych odcinkach unikaj trawy!",
+            "dla lepszych wrażeń dodaj rozszerzenie Ublock orgin!",
+            "Nie daj sie ponieść fantazjom!",
+            "każdy kocha anime... a anime kocha nas!",
+            "Światło co ty tu rozisz? (tekst nawiązany do anime death note)",
+            "Dobry dzień!",
+            "Wódeczkę do seansu?",
+            "Szykuj popcorn!",
+            "Masz jaja wchodząc na tą strone.",
+            "Właściciel poleca: Cyberpunk: Edgerunners",
+            "Siemaaaa",
+            "Pomidor!",
+            "Lubie fantazy. Ty też?",
+            "Szukamy Administracji!"
+        ];
+
         window.onload = async () => {
             createSakuraPetals();
             await checkUserRegistration();
             applySavedTheme();
             fetchAnime();
-            checkAdminAuth();
+            runNetflixIntro();
+            initRealtimeWatchFeed();
+            checkContinueWatching();
+            initSearchShortcut();
         };
+
+        /* SKRÓT KLAWISZOWY: '/' lub 'Ctrl+K' aktywuje wyszukiwarkę */
+        function initSearchShortcut() {
+            window.addEventListener('keydown', (e) => {
+                if ((e.key === '/' || (e.ctrlKey && e.key === 'k') || (e.metaKey && e.key === 'k')) && document.activeElement.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) searchInput.focus();
+                }
+            });
+        }
+
+        /* REALTIME WATCH FEED (Supabase Broadcast) */
+        function initRealtimeWatchFeed() {
+            realtimeChannel = _supabase.channel('watch_events');
+            
+            realtimeChannel
+                .on('broadcast', { event: 'user_watched_ep' }, (payload) => {
+                    const data = payload.payload;
+                    if (data && data.nick && data.animeTitle) {
+                        showActivityNotification(data.nick, data.epNumber, data.animeTitle);
+                    }
+                })
+                .subscribe();
+        }
+
+        function broadcastWatchEvent(nick, epNumber, animeTitle) {
+            if (realtimeChannel) {
+                realtimeChannel.send({
+                    type: 'broadcast',
+                    event: 'user_watched_ep',
+                    payload: { nick, epNumber, animeTitle }
+                });
+            }
+        }
+
+        function showActivityNotification(nick, epNumber, animeTitle) {
+            const toast = document.getElementById('activity-toast');
+            const textEl = document.getElementById('activity-text');
+
+            textEl.innerHTML = `<strong class="text-pink-300 font-bold">${nick}</strong> właśnie obejrzał <span class="text-white font-semibold">Odc. ${epNumber}</span> z serii <strong class="text-pink-200">${animeTitle}</strong>!`;
+
+            toast.classList.remove('toast-hidden');
+
+            setTimeout(() => {
+                toast.classList.add('toast-hidden');
+            }, 6000);
+        }
+
+        /* BANER KONTYNUUJ OGLĄDANIE */
+        function checkContinueWatching() {
+            const lastData = localStorage.getItem('af_last_watched');
+            if (!lastData) return;
+
+            try {
+                const parsed = JSON.parse(lastData);
+                if (parsed && parsed.animeId) {
+                    const cwBox = document.getElementById('continue-watching-box');
+                    document.getElementById('cw-title').innerText = parsed.animeTitle;
+                    document.getElementById('cw-ep').innerText = `Odcinek ${parsed.epNumber}`;
+                    
+                    document.getElementById('cw-btn').onclick = () => {
+                        openAnimeDetails(parsed.animeId, parsed.videoUrl);
+                    };
+
+                    cwBox.classList.remove('hidden');
+                }
+            } catch(e) {}
+        }
+
+        function saveLastWatched(animeId, animeTitle, epNumber, videoUrl) {
+            const data = { animeId, animeTitle, epNumber, videoUrl };
+            localStorage.setItem('af_last_watched', JSON.stringify(data));
+            checkContinueWatching();
+        }
+
+        function runNetflixIntro() {
+            const introScreen = document.getElementById('intro-screen');
+            const introNick = document.getElementById('intro-nick');
+            const introMotto = document.getElementById('intro-motto');
+            const introAvatarImg = document.getElementById('intro-avatar-img');
+            const introAvatarIcon = document.getElementById('intro-avatar-icon');
+
+            introNick.innerText = currentUser.nickname || 'UŻYTKOWNIK';
+
+            if (mottosList.length > 0) {
+                const randomText = mottosList[Math.floor(Math.random() * mottosList.length)];
+                introMotto.innerText = `"${randomText}"`;
+            }
+
+            if (currentUser.avatar) {
+                introAvatarImg.src = currentUser.avatar;
+                introAvatarImg.classList.remove('hidden');
+                introAvatarIcon.classList.add('hidden');
+            } else {
+                introAvatarImg.classList.add('hidden');
+                introAvatarIcon.classList.remove('hidden');
+            }
+
+            setTimeout(() => {
+                introScreen.classList.add('fade-out');
+            }, 3000);
+        }
 
         async function checkUserRegistration() {
             if (!currentUser.nickname) {
@@ -644,24 +645,27 @@
         async function submitNickname(e) {
             e.preventDefault();
             const nick = document.getElementById('user-nick-input').value.trim();
+            const avatar = document.getElementById('user-avatar-input').value.trim();
             if (!nick) return;
 
             currentUser.nickname = nick;
+            currentUser.avatar = avatar;
             localStorage.setItem('af_user_nick', nick);
+            localStorage.setItem('af_user_avatar', avatar);
             
             try {
                 let { data: existing } = await _supabase.from('users').select('*').eq('nickname', nick).single();
                 if (!existing) {
-                    await _supabase.from('users').insert([{ nickname: nick, role: 'User' }]);
+                    await _supabase.from('users').insert([{ nickname: nick, avatar_url: avatar, role: 'User' }]);
                 } else {
                     currentUser.role = existing.role || 'User';
+                    if (avatar) await _supabase.from('users').update({ avatar_url: avatar }).eq('nickname', nick);
                 }
-            } catch(err) {
-                console.log('Rejestracja użytkownika...', err);
-            }
+            } catch(err) {}
 
             document.getElementById('nickname-modal').classList.add('hidden');
             updateUserBadge();
+            runNetflixIntro();
         }
 
         async function fetchUserData() {
@@ -669,6 +673,10 @@
                 let { data: user } = await _supabase.from('users').select('*').eq('nickname', currentUser.nickname).single();
                 if (user) {
                     currentUser.role = user.role || 'User';
+                    if (user.avatar_url && !currentUser.avatar) {
+                        currentUser.avatar = user.avatar_url;
+                        localStorage.setItem('af_user_avatar', user.avatar_url);
+                    }
                 }
             } catch(e) {}
             updateUserBadge();
@@ -677,6 +685,19 @@
         function updateUserBadge() {
             document.getElementById('user-profile-badge').classList.remove('hidden');
             document.getElementById('nav-nick').innerText = currentUser.nickname;
+            
+            const avatarImg = document.getElementById('nav-avatar-img');
+            const avatarIcon = document.getElementById('nav-avatar-icon');
+
+            if (currentUser.avatar) {
+                avatarImg.src = currentUser.avatar;
+                avatarImg.classList.remove('hidden');
+                avatarIcon.classList.add('hidden');
+            } else {
+                avatarImg.classList.add('hidden');
+                avatarIcon.classList.remove('hidden');
+            }
+
             const roleEl = document.getElementById('nav-role');
             roleEl.innerText = currentUser.role;
 
@@ -694,39 +715,49 @@
             modal.classList.toggle('hidden');
 
             if (!modal.classList.contains('hidden')) {
-                const langRadio = document.querySelector(`input[name="player_lang"][value="${playerSettings.lang}"]`);
-                if (langRadio) langRadio.checked = true;
-
+                document.getElementById('settings-avatar-input').value = currentUser.avatar || '';
                 if (playerSettings.theme === 'custom') {
                     document.getElementById('custom-gui-box').classList.remove('hidden');
                 }
             }
         }
 
+        async function saveSettingsAvatar() {
+            const url = document.getElementById('settings-avatar-input').value.trim();
+            currentUser.avatar = url;
+            localStorage.setItem('af_user_avatar', url);
+            updateUserBadge();
+            try {
+                if (currentUser.nickname) await _supabase.from('users').update({ avatar_url: url }).eq('nickname', currentUser.nickname);
+            } catch(err) {}
+            toggleSettingsModal();
+        }
+
+        const themesList = ['sakura', 'obsidian', 'monochrome', 'ocean', 'cyberpunk'];
+        function cycleThemeQuick() {
+            let currentIndex = themesList.indexOf(playerSettings.theme);
+            let nextIndex = (currentIndex + 1) % themesList.length;
+            selectTheme(themesList[nextIndex]);
+        }
+
         function selectTheme(themeVal) {
             playerSettings.theme = themeVal;
             localStorage.setItem('af_theme', themeVal);
-
             const customBox = document.getElementById('custom-gui-box');
-            if (themeVal === 'custom') {
-                customBox.classList.remove('hidden');
-            } else {
-                customBox.classList.add('hidden');
-            }
-
+            if (themeVal === 'custom') customBox.classList.remove('hidden');
+            else customBox.classList.add('hidden');
             applySavedTheme();
         }
 
         function saveCustomBg() {
             const url = document.getElementById('custom-bg-input').value.trim();
             const warning = document.getElementById('gif-warning');
-
             const isGif = url.toLowerCase().includes('.gif');
             const hasVipAccess = currentUser.role === 'VIP' || currentUser.role === 'Admin';
 
             if (isGif && !hasVipAccess) {
                 warning.classList.remove('hidden');
-                alert('Tylko osoby z rangą VIP lub Admin mogą ustawiać GIF jako własne tło!');
+                alert('Tylko VIP/Admin może ustawiać GIF jako tło!');
                 return;
             }
 
@@ -738,17 +769,14 @@
         }
 
         function applySavedTheme() {
-            document.body.className = "min-h-screen flex flex-col relative overflow-x-hidden";
-            
+            document.body.className = "min-h-screen flex flex-col relative overflow-x-hidden pb-12";
             if (playerSettings.theme === 'obsidian') document.body.classList.add('theme-obsidian');
             else if (playerSettings.theme === 'monochrome') document.body.classList.add('theme-monochrome');
             else if (playerSettings.theme === 'ocean') document.body.classList.add('theme-ocean');
             else if (playerSettings.theme === 'cyberpunk') document.body.classList.add('theme-cyberpunk');
             else if (playerSettings.theme === 'custom') {
                 document.body.classList.add('theme-custom');
-                if (playerSettings.customBg) {
-                    document.documentElement.style.setProperty('--custom-bg-img', `url('${playerSettings.customBg}')`);
-                }
+                if (playerSettings.customBg) document.documentElement.style.setProperty('--custom-bg-img', `url('${playerSettings.customBg}')`);
             }
         }
 
@@ -772,84 +800,89 @@
         }
 
         function showSection(sectionId) {
-            ['home', 'details', 'calendar', 'announcements', 'admin'].forEach(sec => {
+            ['home', 'details', 'calendar', 'announcements'].forEach(sec => {
                 const el = document.getElementById(`sec-${sec}`);
                 if (el) el.classList.add('hidden');
             });
-            const target = document.getElementById(`sec-${sectionId}`);
-            if (target) target.classList.remove('hidden');
+            document.getElementById(`sec-${sectionId}`).classList.remove('hidden');
         }
 
         async function fetchAnime() {
-            const statusDiv = document.getElementById('db-status');
             try {
-                let { data: anime, error } = await _supabase.from('anime').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                
+                let { data: anime } = await _supabase.from('anime').select('*').order('created_at', { ascending: false });
                 allAnimeData = anime || [];
+                buildGenresFilter(allAnimeData);
                 renderAnimeGrid(allAnimeData);
-                renderTopRated(allAnimeData);
-                populateAdminSelect();
-                renderAdminAnimeList();
                 fetchAnnouncements();
                 fetchCalendar();
-                
-                statusDiv.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> Połączono z siecią`;
-                statusDiv.className = "text-xs flex items-center gap-2 text-emerald-400 font-bold";
-            } catch (err) {
-                console.error("Błąd połączenia:", err);
-                statusDiv.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-400"></i> Błąd połączenia`;
-                statusDiv.className = "text-xs flex items-center gap-2 text-rose-400 font-bold";
+            } catch(e) {}
+        }
+
+        function buildGenresFilter(list) {
+            const bar = document.getElementById('genres-filter-bar');
+            let categoriesSet = new Set();
+            list.forEach(item => {
+                if (item.category) item.category.split(',').forEach(cat => categoriesSet.add(cat.trim()));
+            });
+
+            let html = `<button onclick="filterByCategory('all')" class="genre-btn ${activeCategory === 'all' ? 'bg-pink-600 text-white border-pink-400' : 'bg-pink-950/40 text-pink-300/80 border-pink-500/20'} font-bold px-3 py-1 rounded-full border transition-all">Wszystkie</button>`;
+            categoriesSet.forEach(cat => {
+                const isActive = activeCategory === cat;
+                html += `<button onclick="filterByCategory('${cat}')" class="genre-btn ${isActive ? 'bg-pink-600 text-white border-pink-400' : 'bg-pink-950/40 text-pink-300/80 border-pink-500/20'} font-bold px-3 py-1 rounded-full border transition-all">${cat}</button>`;
+            });
+            bar.innerHTML = html;
+        }
+
+        function filterByCategory(cat) {
+            activeCategory = cat;
+            buildGenresFilter(allAnimeData);
+            if (cat === 'all') renderAnimeGrid(allAnimeData);
+            else renderAnimeGrid(allAnimeData.filter(i => i.category && i.category.toLowerCase().includes(cat.toLowerCase())));
+        }
+
+        function filterAnime() {
+            const val = document.getElementById('search-input').value.toLowerCase().trim();
+            if (!val) {
+                renderAnimeGrid(allAnimeData);
+                return;
             }
+            const filtered = allAnimeData.filter(item => item.title.toLowerCase().includes(val));
+            renderAnimeGrid(filtered);
         }
 
         function renderAnimeGrid(list) {
             const grid = document.getElementById('anime-grid');
             if (list.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-pink-300/40 text-xs">Brak dostępnych serii.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-pink-300/40 text-xs">Brak dostępnych serii w tej kategorii.</div>`;
                 return;
             }
 
             grid.innerHTML = list.map(item => `
                 <div class="glass-panel glass-panel-hover rounded-2xl overflow-hidden cursor-pointer flex flex-col group" onclick="openAnimeDetails(${item.id})">
                     <div class="relative aspect-[2/3] bg-purple-950/40 overflow-hidden">
-                        <img src="${item.image_url || 'https://via.placeholder.com/300x450'}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                            <span class="text-[11px] text-pink-200 font-bold flex items-center gap-1"><i class="fa-solid fa-play text-pink-400 text-xs"></i> Oglądaj</span>
-                        </div>
-                        ${item.rating ? `<span class="absolute top-2 right-2 bg-purple-950/80 border border-pink-500/30 backdrop-blur-md text-pink-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> ${item.rating}</span>` : ''}
+                        <img src="${item.image_url || 'https://via.placeholder.com/300x450'}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        ${item.rating ? `<span class="absolute top-2 right-2 bg-purple-950/80 border border-pink-500/30 text-pink-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full"><i class="fa-solid fa-star text-amber-400"></i> ${item.rating}</span>` : ''}
                     </div>
                     <div class="p-3.5 flex-1 flex flex-col justify-between">
-                        <h3 class="font-bold text-xs line-clamp-1 text-pink-100 group-hover:text-pink-300 transition-colors">${item.title}</h3>
-                        <p class="text-[10px] text-pink-300/50 mt-1 font-medium">${item.category || 'Anime'}</p>
+                        <h3 class="font-bold text-xs line-clamp-1 text-pink-100 group-hover:text-pink-300">${item.title}</h3>
+                        <p class="text-[10px] text-pink-300/50 mt-1">${item.category || 'Anime'}</p>
                     </div>
                 </div>
             `).join('');
         }
 
-        function renderTopRated(list) {
-            const topList = document.getElementById('top-rated-list');
-            const sorted = [...list].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
-            if (sorted.length === 0) {
-                topList.innerHTML = `<p class="text-pink-300/40 text-xs">Brak ocen</p>`;
-                return;
-            }
-            topList.innerHTML = sorted.map(item => `
-                <div class="flex items-center justify-between p-2 rounded-xl hover:bg-pink-950/40 transition-all cursor-pointer group" onclick="openAnimeDetails(${item.id})">
-                    <span class="truncate text-xs font-semibold text-pink-200/90 group-hover:text-pink-300">${item.title}</span>
-                    <span class="text-amber-400 text-xs font-black shrink-0 ml-2 flex items-center gap-1"><i class="fa-solid fa-star text-[10px]"></i> ${item.rating || '-'}</span>
-                </div>
-            `).join('');
+        function openRandomAnime() {
+            if (allAnimeData.length === 0) return;
+            openAnimeDetails(allAnimeData[Math.floor(Math.random() * allAnimeData.length)].id);
         }
 
         async function fetchCalendar() {
             const cal = document.getElementById('calendar-list');
-            let { data: calendarItems } = await _supabase.from('calendar').select('*').order('created_at', { ascending: false });
-            const ongoing = allAnimeData.filter(a => a.status && a.status.toLowerCase().includes('wychodzi'));
-
+            let { data: items } = await _supabase.from('calendar').select('*').order('created_at', { ascending: false });
+            
             let itemsHTML = '';
-            if (calendarItems && calendarItems.length > 0) {
-                itemsHTML += calendarItems.map(item => `
+            if (items && items.length > 0) {
+                itemsHTML += items.map(item => `
                     <div class="glass-panel glass-panel-hover rounded-2xl overflow-hidden flex flex-col justify-between">
                         ${item.image_url ? `<div class="h-44 overflow-hidden relative"><img src="${item.image_url}" class="w-full h-full object-cover"></div>` : ''}
                         <div class="p-5 space-y-3">
@@ -862,33 +895,19 @@
                     </div>
                 `).join('');
             }
-
-            if (ongoing.length > 0) {
-                itemsHTML += ongoing.map(a => `
-                    <div class="glass-panel glass-panel-hover p-4 rounded-2xl flex items-center gap-4">
-                        <img src="${a.image_url}" class="w-16 h-22 object-cover rounded-xl border border-pink-500/20">
-                        <div>
-                            <h4 class="font-bold text-pink-100 text-xs">${a.title}</h4>
-                            <span class="text-[10px] text-emerald-300 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-500/30 mt-2 inline-block font-semibold">Emisja trwająca</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            cal.innerHTML = itemsHTML || `<p class="text-pink-300/40 text-xs col-span-full">Brak zapowiedzi.</p>`;
-            renderAdminCalendarList(calendarItems || []);
+            cal.innerHTML = itemsHTML || '<p class="text-pink-300/40 text-xs col-span-full">Brak zapowiedzi.</p>';
         }
 
         async function fetchAnnouncements() {
             const container = document.getElementById('announcements-list');
-            let { data: announcements } = await _supabase.from('ogloszenia').select('*').order('created_at', { ascending: false });
+            let { data: anns } = await _supabase.from('ogloszenia').select('*').order('created_at', { ascending: false });
             
-            if (!announcements || announcements.length === 0) {
+            if (!anns || anns.length === 0) {
                 container.innerHTML = `<div class="glass-panel p-6 rounded-2xl text-xs text-pink-300/50">Brak nowych ogłoszeń.</div>`;
                 return;
             }
 
-            container.innerHTML = announcements.map(ann => `
+            container.innerHTML = anns.map(ann => `
                 <div class="glass-panel rounded-2xl overflow-hidden border border-pink-500/20">
                     ${ann.image_url ? `<img src="${ann.image_url}" class="w-full max-h-80 object-cover">` : ''}
                     <div class="p-6 space-y-3">
@@ -904,411 +923,52 @@
             `).join('');
         }
 
-        async function openAnimeDetails(id) {
+        async function openAnimeDetails(id, autoPlayUrl = null) {
             const item = allAnimeData.find(a => a.id === id);
             if (!item) return;
 
-            let { data: episodes } = await _supabase.from('episodes').select('*').eq('anime_id', id).order('episode_number', { ascending: true });
-            episodes = episodes || [];
+            let { data: eps } = await _supabase.from('episodes').select('*').eq('anime_id', id).order('episode_number', { ascending: true });
+            eps = eps || [];
 
-            const content = document.getElementById('details-content');
-            content.innerHTML = `
+            document.getElementById('details-content').innerHTML = `
                 <div class="flex flex-col sm:flex-row gap-6 mb-8 items-center sm:items-start">
-                    <img src="${item.image_url || 'https://via.placeholder.com/300x450'}" class="w-44 rounded-2xl object-cover shadow-xl border border-pink-500/30 shrink-0">
+                    <img src="${item.image_url}" class="w-44 rounded-2xl object-cover shadow-xl border border-pink-500/30">
                     <div class="space-y-3 text-center sm:text-left flex-1">
                         <h1 class="text-2xl font-black text-white">${item.title}</h1>
-                        <div class="flex flex-wrap justify-center sm:justify-start items-center gap-3 text-xs text-pink-300/80">
-                            <span class="bg-pink-950/60 px-3 py-1 rounded-full border border-pink-500/20">Status: <strong class="text-pink-100">${item.status || 'Nieokreślony'}</strong></span>
-                            <span class="bg-pink-950/60 px-3 py-1 rounded-full border border-pink-500/20">Gatunek: <strong class="text-pink-100">${item.category || 'Brak'}</strong></span>
-                            <span class="bg-pink-950/60 px-3 py-1 rounded-full border border-pink-500/20">Ocena: <strong class="text-amber-400"><i class="fa-solid fa-star"></i> ${item.rating || 'Brak'}</strong></span>
-                        </div>
+                        <p class="text-xs text-pink-300/80">Status: ${item.status} | Gatunek: ${item.category}</p>
                     </div>
                 </div>
-
-                <div class="space-y-5">
-                    <div class="flex items-center justify-between">
-                        <h3 class="font-bold text-sm text-pink-200 flex items-center gap-2"><i class="fa-solid fa-tv text-pink-400"></i> Odtwarzacz Video</h3>
-                    </div>
-
-                    <div id="video-container" class="aspect-video bg-black/80 rounded-2xl overflow-hidden flex items-center justify-center border border-pink-500/20 shadow-2xl">
-                        <p class="text-pink-300/40 text-xs">Wybierz odcinek z listy poniżej, aby rozpocząć seans.</p>
-                    </div>
-
-                    <!-- SEKCJA WYBORU HOSTINGU (VK, CDA, Player 1, Player 2) POD ODTWARZACZEM -->
-                    <div id="host-selector-container" class="hidden flex flex-wrap gap-2 items-center bg-pink-950/30 p-3 rounded-2xl border border-pink-500/20 text-xs">
-                        <span class="text-pink-300/80 font-bold mr-2 flex items-center gap-1.5"><i class="fa-solid fa-server text-pink-400"></i> Nie odpowiadamy za "Reklamy" Pobierz proszę Ublock orgin</span>
-                        <div id="host-buttons-list" class="flex flex-wrap gap-2"></div>
-                    </div>
-
-                    <h4 class="font-bold text-xs text-pink-300/80 mt-6">Dostępne Odcinki:</h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
-                        ${episodes.length > 0 ? episodes.map(ep => {
-                            const escapedUrl = (ep.video_url || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                            const escapedTitle = (ep.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                            const langBadge = ep.lang ? `<span class="text-[9px] bg-pink-950 px-1.5 py-0.5 rounded border border-pink-500/30 text-pink-300 font-extrabold">${ep.lang}</span>` : '';
-                            return `
-                            <button onclick="loadEpisodeData('${escapedUrl}')" class="bg-pink-950/40 hover:bg-pink-600 border border-pink-500/20 p-3 rounded-xl text-xs font-semibold transition-all flex flex-col items-center gap-1 text-center group">
-                                <div class="flex items-center gap-1">
-                                    <span class="text-pink-100 group-hover:text-white">Odc. ${ep.episode_number}</span>${langBadge}
-                                </div>
-                                ${ep.title ? `<span class="text-pink-300/50 group-hover:text-pink-200 text-[9px] truncate max-w-full">${escapedTitle}</span>` : ''}
-                            </button>
-                        `}).join('') : '<p class="text-pink-300/40 text-xs col-span-full">Brak dodanych odcinków.</p>'}
-                    </div>
+                <div id="video-container" class="aspect-video bg-black/80 rounded-2xl border border-pink-500/20 mb-6 flex items-center justify-center">
+                    <p class="text-pink-300/40 text-xs">Wybierz odcinek.</p>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
+                    ${eps.map(e => `<button onclick="playEp('${e.video_url}',${e.episode_number}, '${item.title.replace(/'/g, "\\'")}', ${item.id})" class="bg-pink-950/40 hover:bg-pink-600 border border-pink-500/20 p-3 rounded-xl text-xs font-semibold text-white">Odc. ${e.episode_number}</button>`).join('')}
                 </div>
             `;
-
             showSection('details');
 
-            // Automatyczne odtworzenie odcinka zgodnego z preferowanym językiem
-            const preferredLang = playerSettings.lang || 'PL';
-            const matchedEp = episodes.find(e => e.lang === preferredLang) || episodes[0];
-            if (matchedEp && matchedEp.video_url) {
-                loadEpisodeData(matchedEp.video_url);
-            }
-
-            // Podpięcie obserwatora pod odtwarzacz wideo do trybu Mini-Player
-            setTimeout(() => {
-                const videoContainer = document.getElementById('video-container');
-                if (videoContainer) {
-                    playerObserver.observe(videoContainer);
-                }
-            }, 300);
-        }
-
-        // SYSTEM OBSŁUGUJĄCY SPERSONALIZOWANE NAZWY PLAYERÓW (VK, CDA, Player 1)
-        function parseHosts(rawString) {
-            if (!rawString) return [];
-            return rawString.split(',').map((item, idx) => {
-                const trimmed = item.trim();
-                if (trimmed.includes('http://') || trimmed.includes('https://')) {
-                    const parts = trimmed.split(/:(.+)/);
-                    if (parts.length >= 2 && !parts[0].startsWith('http')) {
-                        return { name: parts[0].trim(), url: parts[1].trim() };
-                    }
-                }
-                return { name: `Player ${idx + 1}`, url: trimmed };
-            }).filter(h => h.url.length > 0);
-        }
-
-        function loadEpisodeData(rawUrl) {
-            const hosts = parseHosts(rawUrl);
-            const selectorContainer = document.getElementById('host-selector-container');
-            const hostButtons = document.getElementById('host-buttons-list');
-
-            if (hosts.length > 0) {
-                selectorContainer.classList.remove('hidden');
-                
-                let activeIdx = playerSettings.preferredHost < hosts.length ? playerSettings.preferredHost : 0;
-
-                hostButtons.innerHTML = hosts.map((host, idx) => {
-                    const escapedUrl = host.url.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    const isSelected = idx === activeIdx;
-                    return `
-                    <button id="host-btn-${idx}" onclick="switchHost('${escapedUrl}', ${idx}, '${rawUrl}')" 
-                        class="px-3.5 py-1.5 rounded-xl font-bold border transition-all text-xs flex items-center gap-1.5 ${isSelected ? 'bg-pink-600 border-pink-400 text-white shadow-md shadow-pink-600/30' : 'bg-pink-950/60 border-pink-500/30 text-pink-200 hover:bg-pink-900'}">
-                        <i class="fa-solid fa-circle-play text-[10px]"></i> ${host.name}
-                    </button>
-                `}).join('');
-                
-                playEpisode(hosts[activeIdx].url);
-            } else {
-                selectorContainer.classList.add('hidden');
+            if (autoPlayUrl) {
+                const matchedEp = eps.find(e => e.video_url === autoPlayUrl);
+                const epNum = matchedEp ? matchedEp.episode_number : 1;
+                playEp(autoPlayUrl, epNum, item.title, item.id);
             }
         }
 
-        function switchHost(url, hostIndex, rawUrl) {
-            updateSetting('preferredHost', hostIndex);
-            loadEpisodeData(rawUrl);
-        }
+        function playEp(url, epNum, title, animeId) {
+            document.getElementById('video-container').innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+            
+            saveLastWatched(animeId, title, epNum, url);
 
-        function playEpisode(url) {
-            const container = document.getElementById('video-container');
-            if (url.endsWith('.mp4') || url.includes('.mp4?')) {
-                container.innerHTML = `<video controls autoplay class="w-full h-full"><source src="${url}" type="video/mp4">Przeglądarka nie obsługuje wideo.</video>`;
-            } else {
-                container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+            if (currentUser.nickname) {
+                broadcastWatchEvent(currentUser.nickname, epNum, title);
             }
         }
 
-        function filterAnime() {
-            showSection('home');
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = allAnimeData.filter(item => item.title && item.title.toLowerCase().includes(query));
-            renderAnimeGrid(filtered);
-        }
-
-        // --- ADMIN LOGIN & USERS ---
-
-        function handleAdminLogin(e) {
-            e.preventDefault();
-            if (document.getElementById('admin-pass-input').value === ADMIN_PASSWORD) {
-                sessionStorage.setItem('isAdminLoggedIn', 'true');
-                checkAdminAuth();
-            } else {
-                alert('Nieprawidłowe hasło!');
-            }
-        }
-
-        function checkAdminAuth() {
-            const isLoggedIn = sessionStorage.getItem('isAdminLoggedIn') === 'true';
-            if (isLoggedIn) {
-                document.getElementById('admin-auth').classList.add('hidden');
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                fetchUsersList();
-            } else {
-                document.getElementById('admin-auth').classList.remove('hidden');
-                document.getElementById('admin-dashboard').classList.add('hidden');
-            }
-        }
-
-        function adminLogout() {
-            sessionStorage.removeItem('isAdminLoggedIn');
-            checkAdminAuth();
-        }
-
-        async function fetchUsersList() {
-            const container = document.getElementById('admin-users-list');
-            try {
-                let { data: users } = await _supabase.from('users').select('*').order('created_at', { ascending: false });
-                if (!users || users.length === 0) {
-                    container.innerHTML = '<p class="text-pink-300/40">Brak zarejestrowanych użytkowników.</p>';
-                    return;
-                }
-                container.innerHTML = users.map(u => `
-                    <div class="flex items-center justify-between bg-pink-950/30 border border-pink-500/20 p-2 rounded-lg">
-                        <span class="text-pink-100 font-bold">${u.nickname}</span>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full ${u.role === 'VIP' ? 'bg-amber-950 text-amber-300 border border-amber-500/30' : u.role === 'Admin' ? 'bg-rose-950 text-rose-300 border border-rose-500/30' : 'bg-pink-950 text-pink-300'} font-black uppercase">${u.role || 'User'}</span>
-                    </div>
-                `).join('');
-            } catch(e) {
-                container.innerHTML = '<p class="text-pink-300/40">Brak połączenia z tabelą users.</p>';
-            }
-        }
-
-        async function handleAssignRole(e) {
-            e.preventDefault();
-            const nick = document.getElementById('adm-user-nick').value.trim();
-            const role = document.getElementById('adm-user-role').value;
-
-            try {
-                let { data: user } = await _supabase.from('users').select('*').eq('nickname', nick).single();
-                if (!user) {
-                    await _supabase.from('users').insert([{ nickname: nick, role: role }]);
-                } else {
-                    await _supabase.from('users').update({ role: role }).eq('nickname', nick);
-                }
-                alert(`Pomyślnie nadano rangę ${role} dla ${nick}!`);
-                document.getElementById('adm-user-nick').value = '';
-                fetchUsersList();
-
-                if (nick === currentUser.nickname) {
-                    currentUser.role = role;
-                    updateUserBadge();
-                }
-            } catch(err) {
-                alert('Błąd nadawania rangi: ' + err.message);
-            }
-        }
-
-        // --- CRUD ANIME & EPISODES ---
-
-        function populateAdminSelect() {
-            const select = document.getElementById('admin-anime-select');
-            select.innerHTML = '<option value="">-- Wybierz Anime --</option>' + 
-                allAnimeData.map(a => `<option value="${a.id}">${a.title}</option>`).join('');
-        }
-
-        function renderAdminAnimeList() {
-            const list = document.getElementById('admin-anime-list');
-            if (allAnimeData.length === 0) {
-                list.innerHTML = '<p class="text-pink-300/40 py-2">Brak wpisów.</p>';
-                return;
-            }
-
-            list.innerHTML = allAnimeData.map(a => `
-                <div class="flex items-center justify-between py-3">
-                    <div class="flex items-center gap-3">
-                        <img src="${a.image_url}" class="w-10 h-14 object-cover rounded-lg border border-pink-500/20">
-                        <div>
-                            <p class="font-bold text-pink-100">${a.title}</p>
-                            <p class="text-[10px] text-pink-300/50">${a.category || 'Brak kat.'} | Ocena: ${a.rating || '-'}</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="editAnime(${a.id})" class="bg-pink-950/60 hover:bg-pink-900 border border-pink-500/30 text-pink-200 px-3 py-1 rounded-lg text-xs font-semibold">Edytuj</button>
-                        <button onclick="deleteAnime(${a.id})" class="bg-rose-950/60 hover:bg-rose-900 border border-rose-500/30 text-rose-300 px-3 py-1 rounded-lg text-xs font-semibold">Usuń</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function handleSaveAnime(e) {
-            e.preventDefault();
-            const id = document.getElementById('adm-id').value;
-            const title = document.getElementById('adm-title').value;
-            const image_url = document.getElementById('adm-image').value;
-            const status = document.getElementById('adm-status').value;
-            const category = document.getElementById('adm-category').value;
-            const rating = parseFloat(document.getElementById('adm-rating').value) || null;
-
-            if (id) {
-                await _supabase.from('anime').update({ title, image_url, status, category, rating }).eq('id', id);
-            } else {
-                await _supabase.from('anime').insert([{ title, image_url, status, category, rating }]);
-            }
-
-            resetAdminForm();
-            fetchAnime();
-        }
-
-        function editAnime(id) {
-            const item = allAnimeData.find(a => a.id === id);
-            if (!item) return;
-
-            document.getElementById('adm-id').value = item.id;
-            document.getElementById('adm-title').value = item.title;
-            document.getElementById('adm-image').value = item.image_url;
-            document.getElementById('adm-status').value = item.status || '';
-            document.getElementById('adm-category').value = item.category || '';
-            document.getElementById('adm-rating').value = item.rating || '';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        async function deleteAnime(id) {
-            if (!confirm('Usunąć to anime?')) return;
-            await _supabase.from('anime').delete().eq('id', id);
-            fetchAnime();
-        }
-
-        function resetAdminForm() {
-            document.getElementById('adm-id').value = '';
-            document.getElementById('add-anime-form').reset();
-        }
-
-        async function loadAdminEpisodes() {
-            const animeId = document.getElementById('admin-anime-select').value;
-            const container = document.getElementById('episode-form-container');
-
-            if (!animeId) {
-                container.classList.add('hidden');
-                return;
-            }
-
-            container.classList.remove('hidden');
-            let { data: episodes } = await _supabase.from('episodes').select('*').eq('anime_id', animeId).order('episode_number', { ascending: true });
-            currentEpisodes = episodes || [];
-
-            renderAdminEpisodesList();
-        }
-
-        function renderAdminEpisodesList() {
-            const list = document.getElementById('admin-episodes-list');
-            if (currentEpisodes.length === 0) {
-                list.innerHTML = '<p class="text-pink-300/40">Brak odcinków.</p>';
-                return;
-            }
-
-            list.innerHTML = currentEpisodes.map(ep => `
-                <div class="flex items-center justify-between bg-pink-950/30 border border-pink-500/20 p-2 rounded-lg">
-                    <span class="text-pink-100 font-medium">Odcinek ${ep.episode_number} [${ep.lang || 'PL'}]: ${ep.title || 'Bez tytułu'}</span>
-                    <button onclick="deleteEpisode(${ep.id})" class="text-rose-400 hover:text-rose-300 font-bold px-2">Usuń</button>
-                </div>
-            `).join('');
-        }
-
-        async function handleAddEpisode(e) {
-            e.preventDefault();
-            const anime_id = document.getElementById('admin-anime-select').value;
-            const episode_number = parseInt(document.getElementById('ep-number').value);
-            const lang = document.getElementById('ep-lang').value;
-            const title = document.getElementById('ep-title').value;
-            const video_url = document.getElementById('ep-url').value;
-
-            await _supabase.from('episodes').insert([{ anime_id, episode_number, lang, title, video_url }]);
-            document.getElementById('ep-number').value = '';
-            document.getElementById('ep-title').value = '';
-            document.getElementById('ep-url').value = '';
-            loadAdminEpisodes();
-        }
-
-        async function deleteEpisode(id) {
-            if (!confirm('Usunąć odcinek?')) return;
-            await _supabase.from('episodes').delete().eq('id', id);
-            loadAdminEpisodes();
-        }
-
-        async function handleAddCalendarItem(e) {
-            e.preventDefault();
-            const title = document.getElementById('cal-title').value;
-            const day = document.getElementById('cal-day').value;
-            const time = document.getElementById('cal-time').value;
-            const image_url = document.getElementById('cal-image').value;
-
-            await _supabase.from('calendar').insert([{ title, day, time, image_url }]);
-            document.getElementById('cal-title').value = '';
-            document.getElementById('cal-day').value = '';
-            document.getElementById('cal-time').value = '';
-            document.getElementById('cal-image').value = '';
-            fetchCalendar();
-        }
-
-        function renderAdminCalendarList(items) {
-            const list = document.getElementById('admin-calendar-list');
-            if (!items || items.length === 0) {
-                list.innerHTML = '<p class="text-pink-300/40">Brak pozycji.</p>';
-                return;
-            }
-
-            list.innerHTML = items.map(item => `
-                <div class="flex items-center justify-between bg-pink-950/30 border border-pink-500/20 p-2 rounded-lg">
-                    <span class="text-pink-100 font-medium">${item.title} (${item.day})</span>
-                    <button onclick="deleteCalendarItem(${item.id})" class="text-rose-400 hover:text-rose-300 font-bold px-2">Usuń</button>
-                </div>
-            `).join('');
-        }
-
-        async function deleteCalendarItem(id) {
-            if (!confirm('Usunąć?')) return;
-            await _supabase.from('calendar').delete().eq('id', id);
-            fetchCalendar();
-        }
-
-        async function handleAddAnnouncement(e) {
-            e.preventDefault();
-            const title = document.getElementById('ann-title').value;
-            const content = document.getElementById('ann-content').value;
-            const image_url = document.getElementById('ann-image').value;
-
-            await _supabase.from('ogloszenia').insert([{ title, content, image_url }]);
-            document.getElementById('ann-title').value = '';
-            document.getElementById('ann-content').value = '';
-            document.getElementById('ann-image').value = '';
-            fetchAnnouncements();
-        }
-
-        // --- MINI PLAYER OBSERVER ---
         const playerObserver = new IntersectionObserver(([entry]) => {
-            const videoContainer = document.getElementById('video-container');
-            if (!videoContainer) return;
-
-            if (!entry.isIntersecting && videoContainer.querySelector('iframe, video')) {
-                videoContainer.classList.add('mini-player-active');
-            } else {
-                videoContainer.classList.remove('mini-player-active');
-            }
+            const vc = document.getElementById('video-container');
+            if (vc && !entry.isIntersecting && vc.querySelector('iframe')) vc.classList.add('mini-player-active');
+            else if (vc) vc.classList.remove('mini-player-active');
         }, { threshold: 0.1 });
-
-        // --- UI CLICK SFX ---
-        const uiClickSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-        uiClickSfx.volume = 0.15;
-
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('button, a, .glass-panel-hover, [onclick]')) {
-                uiClickSfx.currentTime = 0;
-                uiClickSfx.play().catch(() => {});
-            }
-        });
     </script>
 </body>
 </html>
