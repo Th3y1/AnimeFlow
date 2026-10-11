@@ -57,8 +57,8 @@
             </div>
             <form onsubmit="submitNickname(event)" class="space-y-3 text-left">
                 <div>
-                    <label class="text-[10px] text-pink-300/80 block mb-1">Twój Nick *</label>
-                    <input type="text" id="user-nick-input" required placeholder="np. Pseudo" class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-2.5 text-pink-100 text-xs focus:outline-none focus:border-pink-400">
+                    <label class="text-[10px] text-pink-300/80 block mb-1">Twoje Pseudo *</label>
+                    <input type="text" id="user-nick-input" required placeholder="np. Pseudo123" class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-2.5 text-pink-100 text-xs focus:outline-none focus:border-pink-400">
                 </div>
                 <div>
                     <label class="text-[10px] text-pink-300/80 block mb-1">URL Awataru (opcjonalnie)</label>
@@ -76,7 +76,7 @@
             <div class="px-6 py-4 bg-pink-950/40 border-b border-pink-500/20 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <i class="fa-solid fa-sliders text-pink-400 text-sm"></i>
-                    <h3 class="text-sm font-bold tracking-wide text-white uppercase">Personalizacja & Preferencje</h3>
+                    <h3 class="text-sm font-bold tracking-wide text-white uppercase">Ustawionka</h3>
                 </div>
                 <button onclick="toggleSettingsModal()" class="w-8 h-8 rounded-full bg-pink-950/60 hover:bg-pink-900 border border-pink-500/20 text-pink-300 hover:text-white flex items-center justify-center transition-colors">
                     <i class="fa-solid fa-xmark text-sm"></i>
@@ -85,63 +85,63 @@
 
             <div class="p-6 space-y-5 text-xs">
                 <div class="space-y-2 border-b border-pink-500/15 pb-4">
-                    <label class="text-pink-200 font-semibold block">Zdjęcie Profilowe (Awatar URL)</label>
+                    <label class="text-pink-200 font-semibold block">Zdjęcie pfp</label>
                     <div class="flex gap-2">
-                        <input type="url" id="settings-avatar-input" placeholder="Wklej bezpośredni URL do obrazka..." class="flex-1 bg-pink-950/40 border border-pink-500/30 rounded-xl px-3 py-2 text-pink-100 placeholder-pink-300/30 text-xs focus:outline-none focus:border-pink-400">
+                        <input type="url" id="settings-avatar-input" placeholder="Url Obrazka" class="flex-1 bg-pink-950/40 border border-pink-500/30 rounded-xl px-3 py-2 text-pink-100 placeholder-pink-300/30 text-xs focus:outline-none focus:border-pink-400">
                         <button onclick="saveSettingsAvatar()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shrink-0">Zmień</button>
                     </div>
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-pink-200 font-semibold block">Styl Wizualny (GUI)</label>
+                    <label class="text-pink-200 font-semibold block">GUI Stronki</label>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         <button onclick="selectTheme('sakura')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-pink-500 inline-block shadow-[0_0_8px_#ec4899]"></span>
-                                <span class="font-bold text-white text-[11px]">Sakura Wave</span>
+                                <span class="font-bold text-white text-[11px]">Klasyczny</span>
                             </div>
                         </button>
                         <button onclick="selectTheme('obsidian')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-purple-600 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">Pure Obsidian</span>
+                                <span class="font-bold text-white text-[11px]">Obsydianowy</span>
                             </div>
                         </button>
                         <button onclick="selectTheme('monochrome')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-slate-300 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">Monochrome</span>
+                                <span class="font-bold text-white text-[11px]">Monochromkowy :3</span>
                             </div>
                         </button>
                         <button onclick="selectTheme('ocean')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-sky-400 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">Ocean Blue</span>
+                                <span class="font-bold text-white text-[11px]">Niebieski</span>
                             </div>
                         </button>
                         <button onclick="selectTheme('cyberpunk')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">Cyberpunk</span>
+                                <span class="font-bold text-white text-[11px]">Cyberpunkowy</span>
                             </div>
                         </button>
                         <button onclick="selectTheme('custom')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-gradient-to-r from-pink-500 to-amber-400 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">Custom GUI</span>
+                                <span class="font-bold text-white text-[11px]">GUI</span>
                             </div>
                         </button>
                     </div>
                 </div>
 
                 <div id="custom-gui-box" class="hidden space-y-2 border-t border-pink-500/15 pt-4">
-                    <label class="text-pink-200 font-semibold block">Własny Obraz / GIF Tła</label>
+                    <label class="text-pink-200 font-semibold block">Własny Obrazek</label>
                     <div class="flex gap-2">
                         <input type="url" id="custom-bg-input" placeholder="Wklej bezpośredni URL..." class="flex-1 bg-pink-950/40 border border-pink-500/30 rounded-xl px-3 py-2 text-pink-100 placeholder-pink-300/30 text-xs focus:outline-none focus:border-pink-400">
                         <button onclick="saveCustomBg()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shrink-0">Aplikuj</button>
                     </div>
                     <p id="gif-warning" class="text-[10px] text-amber-400 hidden flex items-center gap-1">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Animacje GIF są zastrzeżone dla rang VIP oraz Admin!
+                        <i class="fa-solid fa-triangle-exclamation"></i> Animacje GIF są niedostępne!
                     </p>
                 </div>
             </div>
@@ -160,7 +160,7 @@
                 </div>
                 <div class="flex flex-col">
                     <span class="font-jp text-2xl tracking-widest text-white pink-glow-text flex items-center gap-2">
-                        アニメ<span class="text-pink-400 font-sans font-black tracking-normal">FLOW</span>
+                        アニメ<span class="text-pink-400 font-sans font-black tracking-normal">Flow :3</span>
                     </span>
                 </div>
             </div>
@@ -169,12 +169,12 @@
                 <button onclick="showSection('home')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-house-kimono text-pink-400"></i> Główna</button>
                 <button onclick="showSection('calendar')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar-heart text-pink-400"></i> Kalendarz</button>
                 <button onclick="showSection('announcements')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-scroll text-pink-400"></i> Ogłoszenia</button>
-                <button onclick="openRandomAnime()" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-dice text-pink-400"></i> Losuj</button>
+                <button onclick="openRandomAnime()" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-dice text-pink-400"></i> Losowanko</button>
             </nav>
 
             <div class="flex items-center gap-3">
                 <div class="relative w-32 sm:w-48">
-                    <input type="text" id="search-input" oninput="filterAnime()" placeholder="Szukaj... (/)" 
+                    <input type="text" id="search-input" oninput="filterAnime()" placeholder="Poszukaj czegoś" 
                         class="w-full bg-pink-950/30 text-xs text-pink-100 placeholder-pink-300/40 px-3 py-2 pl-8 rounded-full border border-pink-500/20 focus:outline-none focus:border-pink-400 transition-all">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-pink-400/60 text-xs"></i>
                 </div>
@@ -226,7 +226,7 @@
                 </div>
             </div>
             <button id="cw-btn" class="w-full sm:w-auto bg-pink-600 hover:bg-pink-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30 shrink-0 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-arrow-right-to-bracket"></i> Kontynuuj
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Oglądaj
             </button>
         </div>
 
@@ -244,7 +244,7 @@
                 </div>
 
                 <div id="anime-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-                    <div class="col-span-full text-center py-12 text-pink-300/50 font-medium">🌸 Ładowanie bazy anime...</div>
+                    <div class="col-span-full text-center py-12 text-pink-300/50 font-medium">🌸 Ładowanie bazy anime, prosimy o cierpliwość!</div>
                 </div>
             </div>
         </section>
@@ -288,7 +288,7 @@
     <footer class="bg-purple-950/40 border-t border-pink-500/20 py-6 mt-12 z-10 relative">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs text-pink-300/60 space-y-1.5">
             <p class="font-jp text-sm text-pink-300/90">桜咲く未来へ ・ AnimeFlow</p>
-            <p>© 2026 AnimeFlow. Stworzone z pasją do oglądania w nocy.</p>
+            <p>© 2026 AnimeFlow. Stworzone w ramach hobby.</p>
         </div>
     </footer>
 
