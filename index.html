@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <script defer src="/_vercel/insights/script.js"></script>
-<link rel="stylesheet" href="https://drive.google.com/file/d/1lVdL3d8XWQFebIkKLG1Vh_BNvwC2TyC2/view?usp=sharing">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnimeFlow</title>
+    <title>AnimeFlow - Minimal Search</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS -->
@@ -15,285 +13,192 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Yuji+Mai&display=swap" rel="stylesheet">
-    <!-- Własne Style CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="min-h-screen flex flex-col relative overflow-x-hidden pb-12">
+<body class="min-h-screen flex flex-col relative">
 
-    <!-- EKRAN POWITALNY INTRO -->
-    <div id="intro-screen" class="fixed inset-0 bg-black z-[999] flex flex-col items-center justify-center p-6 text-center select-none">
-        <div class="space-y-6 max-w-md w-full flex flex-col items-center">
-            <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-pink-500/50 shadow-[0_0_30px_rgba(236,72,153,0.3)] overflow-hidden flex items-center justify-center bg-zinc-900">
-                <i id="intro-avatar-icon" class="fa-solid fa-user text-zinc-500 text-5xl"></i>
-                <img id="intro-avatar-img" src="" class="w-full h-full object-cover hidden">
-            </div>
-            
-            <div class="space-y-2">
-                <h2 id="intro-nick" class="text-2xl sm:text-3xl font-black tracking-widest text-white uppercase">
-                    [Wczytywanie...]
-                </h2>
-                <p id="intro-motto" class="text-sm sm:text-base text-pink-300/80 font-medium italic">
-                    ...
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tło z Płatkami Sakury -->
-    <div class="sakura-container" id="sakura-box"></div>
-
-    <div class="japanese-watermark text-[25vw] top-10 right-[-5vw]">桜</div>
-    <div class="japanese-watermark text-[20vw] bottom-10 left-[-3vw]">アニメ</div>
-
-    <!-- MODAL - Nickname & Avatar -->
-    <div id="nickname-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-        <div class="glass-panel max-w-sm w-full p-6 rounded-2xl text-center space-y-4 border border-pink-500/40 shadow-2xl">
-            <div class="w-14 h-14 bg-pink-950/85 rounded-full border border-pink-400/40 flex items-center justify-center mx-auto shadow-lg shadow-pink-500/20 overflow-hidden">
-                <i class="fa-solid fa-user-ninja text-pink-400 text-2xl"></i>
+    <!-- MODAL - Nickname -->
+    <div id="nickname-modal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+        <div class="google-card max-w-sm w-full p-6 text-center space-y-4 shadow-xl">
+            <div class="w-12 h-12 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-full flex items-center justify-center mx-auto">
+                <i class="fa-solid fa-user text-xl"></i>
             </div>
             <div>
-                <h3 class="text-base font-bold text-white">Witaj na AnimeFlow!</h3>
-                <p class="text-xs text-pink-300/70 mt-1">Podaj swój pseudonim i opcjonalny awatar.</p>
+                <h3 class="text-base font-bold">Witaj w AnimeFlow</h3>
+                <p class="text-xs text-gray-500 mt-1">Podaj swój pseudonim, aby kontynuować.</p>
             </div>
-            <form onsubmit="submitNickname(event)" class="space-y-3 text-left">
-                <div>
-                    <label class="text-[10px] text-pink-300/80 block mb-1">Twoje Pseudo *</label>
-                    <input type="text" id="user-nick-input" required placeholder="np. Pseudo123" class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-2.5 text-pink-100 text-xs focus:outline-none focus:border-pink-400">
-                </div>
-                <div>
-                    <label class="text-[10px] text-pink-300/80 block mb-1">URL Awataru (opcjonalnie)</label>
-                    <input type="url" id="user-avatar-input" placeholder="https://... (obrazek)" class="w-full bg-pink-950/40 border border-pink-500/30 rounded-xl p-2.5 text-pink-100 text-xs focus:outline-none focus:border-pink-400">
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30 mt-2">Zapisz i Wejdź</button>
+            <form id="nickname-form" class="space-y-3">
+                <input type="text" id="user-nick-input" required placeholder="Twój nick..." class="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 text-xs text-center focus:outline-none focus:border-black dark:focus:border-white bg-transparent">
+                <button type="submit" class="w-full bg-black text-white dark:bg-white dark:text-black font-medium py-2 rounded-lg text-xs transition-colors">Zapisz i Przejdź</button>
             </form>
         </div>
     </div>
 
     <!-- MODAL - Ustawienia Strony -->
-    <div id="settings-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[90] flex items-center justify-center p-4">
-        <div class="glass-panel max-w-lg w-full rounded-2xl border border-pink-500/30 shadow-2xl overflow-hidden relative">
-            
-            <div class="px-6 py-4 bg-pink-950/40 border-b border-pink-500/20 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <i class="fa-solid fa-sliders text-pink-400 text-sm"></i>
-                    <h3 class="text-sm font-bold tracking-wide text-white uppercase">Ustawionka</h3>
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black/50 z-[90] flex items-center justify-center p-4">
+        <div class="google-card max-w-lg w-full rounded-xl shadow-xl overflow-hidden relative">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                    <h3 class="text-sm font-bold uppercase">Ustawienia</h3>
                 </div>
-                <button onclick="toggleSettingsModal()" class="w-8 h-8 rounded-full bg-pink-950/60 hover:bg-pink-900 border border-pink-500/20 text-pink-300 hover:text-white flex items-center justify-center transition-colors">
+                <button id="close-settings-btn" class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center transition-colors">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
 
             <div class="p-6 space-y-5 text-xs">
-                <div class="space-y-2 border-b border-pink-500/15 pb-4">
-                    <label class="text-pink-200 font-semibold block">Zdjęcie pfp</label>
-                    <div class="flex gap-2">
-                        <input type="url" id="settings-avatar-input" placeholder="Url Obrazka" class="flex-1 bg-pink-950/40 border border-pink-500/30 rounded-xl px-3 py-2 text-pink-100 placeholder-pink-300/30 text-xs focus:outline-none focus:border-pink-400">
-                        <button onclick="saveSettingsAvatar()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shrink-0">Zmień</button>
-                    </div>
-                </div>
-
+                <!-- Wybór Motywu -->
                 <div class="space-y-2">
-                    <label class="text-pink-200 font-semibold block">GUI Stronki</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        <button onclick="selectTheme('sakura')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-pink-500 inline-block shadow-[0_0_8px_#ec4899]"></span>
-                                <span class="font-bold text-white text-[11px]">Klasyczny</span>
-                            </div>
-                        </button>
-                        <button onclick="selectTheme('obsidian')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-purple-600 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">Obsydianowy</span>
-                            </div>
-                        </button>
-                        <button onclick="selectTheme('monochrome')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-slate-300 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">Monochromkowy :3</span>
-                            </div>
-                        </button>
-                        <button onclick="selectTheme('ocean')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-sky-400 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">Niebieski</span>
-                            </div>
-                        </button>
-                        <button onclick="selectTheme('cyberpunk')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">Cyberpunkowy</span>
-                            </div>
-                        </button>
-                        <button onclick="selectTheme('custom')" class="theme-btn p-2.5 rounded-xl border border-pink-500/20 bg-pink-950/30 hover:border-pink-500/50 text-left transition-all">
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-gradient-to-r from-pink-500 to-amber-400 inline-block"></span>
-                                <span class="font-bold text-white text-[11px]">GUI</span>
-                            </div>
-                        </button>
+                    <label class="font-semibold block">Motyw Strony</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center justify-between p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <span class="font-medium">☀️ Jasny</span>
+                            <input type="radio" name="site_theme" value="light" class="accent-black">
+                        </label>
+                        <label class="flex items-center justify-between p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <span class="font-medium">🌙 Ciemny</span>
+                            <input type="radio" name="site_theme" value="dark" class="accent-black">
+                        </label>
                     </div>
                 </div>
 
-                <div id="custom-gui-box" class="hidden space-y-2 border-t border-pink-500/15 pt-4">
-                    <label class="text-pink-200 font-semibold block">Własny Obrazek</label>
-                    <div class="flex gap-2">
-                        <input type="url" id="custom-bg-input" placeholder="Wklej bezpośredni URL..." class="flex-1 bg-pink-950/40 border border-pink-500/30 rounded-xl px-3 py-2 text-pink-100 placeholder-pink-300/30 text-xs focus:outline-none focus:border-pink-400">
-                        <button onclick="saveCustomBg()" class="bg-pink-600 hover:bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors shrink-0">Aplikuj</button>
+                <!-- Autoplay -->
+                <div class="space-y-2 border-t border-gray-200 dark:border-gray-800 pt-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="font-semibold block">Automatyczne odtwarzanie (Autoplay)</label>
+                            <p class="text-[10px] text-gray-500">Automatycznie przechodź do kolejnego odcinka</p>
+                        </div>
+                        <input type="checkbox" id="autoplay-toggle" class="w-4 h-4 accent-black cursor-pointer">
                     </div>
-                    <p id="gif-warning" class="text-[10px] text-amber-400 hidden flex items-center gap-1">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Animacje GIF są niedostępne!
-                    </p>
+                </div>
+
+                <!-- Gęstość Siatki -->
+                <div class="space-y-2 border-t border-gray-200 dark:border-gray-800 pt-4">
+                    <label class="font-semibold block">Rozmiar Kafelków Anime</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center justify-between p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <span class="font-medium">📱 Kompaktowe</span>
+                            <input type="radio" name="grid_density" value="compact" class="accent-black">
+                        </label>
+                        <label class="flex items-center justify-between p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <span class="font-medium">🖼️ Duże</span>
+                            <input type="radio" name="grid_density" value="large" class="accent-black">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resetuj dane -->
+                <div class="border-t border-gray-200 dark:border-gray-800 pt-4">
+                    <button id="reset-user-data-btn" class="w-full py-2 bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-lg font-bold hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors">
+                        <i class="fa-solid fa-trash mr-1"></i> Wyczyść zapamiętane dane i nick
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Header / Navbar -->
-    <header class="bg-purple-950/40 backdrop-blur-md border-b border-pink-500/20 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3 cursor-pointer group select-none shrink-0" onclick="showSection('home')">
-                <div class="relative flex items-center justify-center">
-                    <div class="absolute -inset-2 bg-gradient-to-tr from-pink-600 to-rose-400 rounded-full blur-md opacity-60 group-hover:opacity-100 transition duration-500"></div>
-                    <div class="w-10 h-10 rounded-full bg-pink-950/80 border border-pink-400/50 flex items-center justify-center relative shadow-inner">
-                        <i class="fa-solid fa-torii-gate text-pink-300 text-xl transition-transform duration-300 group-hover:scale-110"></i>
-                    </div>
-                </div>
-                <div class="flex flex-col">
-                    <span class="font-jp text-2xl tracking-widest text-white pink-glow-text flex items-center gap-2">
-                        アニメ<span class="text-pink-400 font-sans font-black tracking-normal">Flow :3</span>
+    <header class="border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 bg-[var(--bg-color)]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-6">
+                <div id="logo-home-btn" class="flex items-center cursor-pointer select-none">
+                    <span class="text-2xl font-black tracking-tight">
+                        AnimeFlow
                     </span>
                 </div>
+                
+                <nav class="hidden md:flex items-center gap-4 text-xs font-medium text-gray-600 dark:text-gray-400">
+                    <button id="nav-home-btn" class="hover:text-black dark:hover:text-white transition-colors py-2"><i class="fa-solid fa-magnifying-glass mr-1"></i> Baza Anime</button>
+                    <button id="nav-calendar-btn" class="hover:text-black dark:hover:text-white transition-colors py-2"><i class="fa-solid fa-calendar mr-1"></i> Kalendarz</button>
+                    <button id="nav-announcements-btn" class="hover:text-black dark:hover:text-white transition-colors py-2"><i class="fa-solid fa-newspaper mr-1"></i> Ogłoszenia</button>
+                </nav>
             </div>
-            
-            <nav class="hidden md:flex items-center gap-6 text-sm font-semibold tracking-wide">
-                <button onclick="showSection('home')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-house-kimono text-pink-400"></i> Główna</button>
-                <button onclick="showSection('calendar')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-calendar-heart text-pink-400"></i> Kalendarz</button>
-                <button onclick="showSection('announcements')" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-scroll text-pink-400"></i> Ogłoszenia</button>
-                <button onclick="openRandomAnime()" class="text-pink-100/80 hover:text-pink-300 transition-colors flex items-center gap-2"><i class="fa-solid fa-dice text-pink-400"></i> Losowanko</button>
-            </nav>
+
+            <!-- Pasek Wyszukiwania -->
+            <div class="flex-1 max-w-md mx-2">
+                <div class="relative google-input flex items-center px-3 py-1.5 border border-gray-200 dark:border-gray-700">
+                    <i class="fa-solid fa-magnifying-glass text-xs mr-2 text-gray-400"></i>
+                    <input type="text" id="search-input" placeholder="Szukaj anime..." 
+                        class="w-full text-xs placeholder-gray-400 bg-transparent focus:outline-none">
+                </div>
+            </div>
 
             <div class="flex items-center gap-3">
-                <div class="relative w-32 sm:w-48">
-                    <input type="text" id="search-input" oninput="filterAnime()" placeholder="Poszukaj czegoś" 
-                        class="w-full bg-pink-950/30 text-xs text-pink-100 placeholder-pink-300/40 px-3 py-2 pl-8 rounded-full border border-pink-500/20 focus:outline-none focus:border-pink-400 transition-all">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-pink-400/60 text-xs"></i>
-                </div>
-
-                <div id="user-profile-badge" class="hidden sm:flex items-center gap-2.5 bg-pink-950/50 border border-pink-500/30 px-3.5 py-1.5 rounded-full text-xs">
-                    <div class="relative">
-                        <div id="nav-avatar-box" class="w-6 h-6 rounded-full bg-pink-900 border border-pink-400/40 overflow-hidden flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-user text-pink-300 text-[10px]" id="nav-avatar-icon"></i>
-                            <img id="nav-avatar-img" src="" class="w-full h-full object-cover hidden">
-                        </div>
-                        <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full border border-black live-dot"></span>
-                    </div>
-                    <div class="flex flex-col text-left leading-tight">
-                        <span id="nav-nick" class="font-bold text-white text-[11px]">...</span>
-                        <span id="nav-role" class="text-[9px] text-pink-300 font-extrabold uppercase">User</span>
-                    </div>
+                <div id="user-profile-badge" class="hidden sm:flex items-center gap-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-100 px-3 py-1 rounded-full text-xs font-medium">
+                    <i class="fa-solid fa-circle-user text-sm text-gray-600 dark:text-gray-300"></i>
+                    <span id="nav-nick">...</span>
                 </div>
 
                 <a id="discord-link" href="https://discord.gg/UTDFC34jX" target="_blank" rel="noopener noreferrer" 
-                   class="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white text-xs font-bold p-2.5 sm:px-4 sm:py-2 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-pink-600/30 shrink-0">
-                    <i class="fa-brands fa-discord text-sm"></i>
-                    <span class="hidden md:inline">Discord</span>
+                   class="text-gray-500 hover:text-black dark:hover:text-white text-sm p-2 transition-colors" title="Discord">
+                    <i class="fa-brands fa-discord"></i>
                 </a>
 
-                <button onclick="cycleThemeQuick()" class="w-9 h-9 rounded-full bg-pink-950/60 border border-pink-500/30 hover:bg-pink-900 text-pink-300 hover:text-white flex items-center justify-center transition-all shrink-0" title="Szybka zmiana motywu">
-                    <i class="fa-solid fa-palette text-sm"></i>
-                </button>
-
-                <button onclick="toggleSettingsModal()" class="w-9 h-9 rounded-full bg-pink-950/60 border border-pink-500/30 hover:bg-pink-900 text-pink-300 hover:text-white flex items-center justify-center transition-all shrink-0" title="Ustawienia">
-                    <i class="fa-solid fa-gear text-sm"></i>
+                <button id="nav-settings-btn" class="text-gray-500 hover:text-black dark:hover:text-white text-sm p-2 transition-colors" title="Ustawienia">
+                    <i class="fa-solid fa-gear"></i>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 z-10 relative space-y-8">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
-        <!-- SEC: Kontynuuj Oglądanie -->
-        <div id="continue-watching-box" class="hidden glass-panel p-4 sm:p-5 rounded-2xl border border-pink-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-pink-900/60 border border-pink-400/40 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-play text-pink-300 text-lg"></i>
-                </div>
-                <div>
-                    <span class="text-[10px] text-pink-300/70 uppercase font-extrabold tracking-wider block">Ostatnio Oglądane</span>
-                    <h3 id="cw-title" class="text-sm font-bold text-white">...</h3>
-                    <p id="cw-ep" class="text-xs text-pink-300/90 font-medium">Odcinek ...</p>
-                </div>
-            </div>
-            <button id="cw-btn" class="w-full sm:w-auto bg-pink-600 hover:bg-pink-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-pink-600/30 shrink-0 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-arrow-right-to-bracket"></i> Oglądaj
-            </button>
-        </div>
-
         <!-- SECTION: Home -->
         <section id="sec-home">
-            <div class="w-full space-y-6">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <h2 class="text-xl font-extrabold flex items-center gap-3 text-white">
-                        <span class="w-2 h-7 bg-pink-500 rounded-full inline-block shadow-[0_0_10px_#ec4899]"></span>
-                        <span class="font-jp text-pink-300 text-2xl mr-1">新作</span> Katalog Serii
-                    </h2>
-                    <div id="genres-filter-bar" class="flex flex-wrap gap-1.5 text-xs">
-                        <button onclick="filterByCategory('all')" class="genre-btn bg-pink-600 text-white font-bold px-3 py-1 rounded-full border border-pink-400 transition-all">Wszystkie</button>
-                    </div>
+            <div class="mb-4 pb-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <span class="text-xs text-gray-500">Katalog serii anime</span>
+                <div id="db-status" class="text-xs flex items-center gap-1.5 text-gray-400">
+                    <i class="fa-solid fa-spinner animate-spin"></i> Łączenie z bazą...
                 </div>
+            </div>
 
-                <div id="anime-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-                    <div class="col-span-full text-center py-12 text-pink-300/50 font-medium">🌸 Ładowanie bazy anime, prosimy o cierpliwość!</div>
-                </div>
+            <div id="anime-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div class="col-span-full text-center py-12 text-gray-400 text-xs">Ładowanie wyników...</div>
             </div>
         </section>
 
         <!-- SECTION: Details / Player -->
         <section id="sec-details" class="hidden">
-            <button onclick="showSection('home')" class="mb-6 text-xs font-bold bg-pink-950/50 hover:bg-pink-900/60 border border-pink-500/30 text-pink-200 px-4 py-2 rounded-full flex items-center gap-2 transition-all">
-                <i class="fa-solid fa-chevron-left text-pink-400"></i> Powrót do katalogu
+            <button id="back-to-home-btn" class="mb-4 text-xs font-medium hover:underline flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left"></i> Wróć do bazy anime
             </button>
-            <div id="details-content" class="glass-panel rounded-2xl p-6 sm:p-8"></div>
+            <div id="details-content" class="google-card p-6"></div>
         </section>
 
         <!-- SECTION: Calendar -->
         <section id="sec-calendar" class="hidden">
-            <h2 class="text-2xl font-extrabold mb-6 flex items-center gap-3 text-white">
-                <span class="w-2 h-7 bg-pink-500 rounded-full inline-block shadow-[0_0_10px_#ec4899]"></span>
-                <span class="font-jp text-pink-300 text-3xl">日程</span> Kalendarz Zapowiedzi & Emisji
+            <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-gray-800">
+                Kalendarz Emisji Anime
             </h2>
-            <div id="calendar-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="calendar-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </section>
 
         <!-- SECTION: Announcements -->
         <section id="sec-announcements" class="hidden">
-            <h2 class="text-2xl font-extrabold mb-6 flex items-center gap-3 text-white">
-                <span class="w-2 h-7 bg-pink-500 rounded-full inline-block shadow-[0_0_10px_#ec4899]"></span>
-                <span class="font-jp text-pink-300 text-3xl">お知らせ</span> Ogłoszenia
+            <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-gray-800">
+                Komunikaty i Ogłoszenia
             </h2>
-            <div id="announcements-list" class="space-y-6"></div>
+            <div id="announcements-list" class="space-y-4"></div>
         </section>
+
     </main>
 
-    <!-- Toast powiadomień Realtime -->
-    <div id="activity-toast" class="toast-hidden fixed bottom-4 left-4 z-50 max-w-sm bg-pink-950/90 border border-pink-500/40 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-2xl flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-pink-900 border border-pink-400/40 flex items-center justify-center shrink-0 overflow-hidden">
-            <i class="fa-solid fa-circle-play text-pink-300 text-sm"></i>
-        </div>
-        <p id="activity-text" class="text-xs text-pink-100 font-medium leading-snug"></p>
-    </div>
-
     <!-- Footer -->
-    <footer class="bg-purple-950/40 border-t border-pink-500/20 py-6 mt-12 z-10 relative">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-pink-300/60 space-y-1.5">
-            <p class="font-jp text-sm text-pink-300/90">桜咲く未来へ ・ AnimeFlow</p>
-            <p>© 2026 AnimeFlow. Stworzone w ramach hobby.</p>
+    <footer class="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500 space-y-1">
+            <p>Polska • Serwis Hobbystyczny AnimeFlow</p>
+            <p>© 2026 AnimeFlow Wszystkie prawa zastrzeżone.</p>
         </div>
     </footer>
 
-    <!-- Podpięty plik z logiką JavaScript -->
+    <!-- Wczytanie konfiguracji oraz logiki -->
+    <script src="config.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
