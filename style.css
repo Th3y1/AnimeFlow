@@ -1,155 +1,72 @@
 :root {
-    --sakura-bg: #110915;
-    --sakura-card: rgba(28, 16, 36, 0.75);
-    --sakura-border: rgba(244, 114, 182, 0.2);
-    --sakura-pink: #ec4899;
-    --sakura-glow: rgba(236, 72, 153, 0.4);
-    --custom-bg-img: none;
+    --bg-color: #ffffff;
+    --card-bg: #ffffff;
+    --border-color: #dadce0;
+    --text-primary: #202124;
+    --text-secondary: #5f6368;
 }
 
-body.theme-obsidian {
-    --sakura-bg: #09090b;
-    --sakura-card: rgba(18, 18, 22, 0.85);
-    --sakura-border: rgba(255, 255, 255, 0.1);
-    --sakura-pink: #a855f7;
-    --sakura-glow: rgba(168, 85, 247, 0.4);
-}
-
-body.theme-monochrome {
-    --sakura-bg: #121212;
-    --sakura-card: rgba(30, 30, 30, 0.85);
-    --sakura-border: rgba(200, 200, 200, 0.2);
-    --sakura-pink: #ffffff;
-    --sakura-glow: rgba(255, 255, 255, 0.3);
-    filter: grayscale(100%);
-}
-
-body.theme-ocean {
-    --sakura-bg: #031525;
-    --sakura-card: rgba(10, 35, 55, 0.8);
-    --sakura-border: rgba(56, 189, 248, 0.3);
-    --sakura-pink: #38bdf8;
-    --sakura-glow: rgba(56, 189, 248, 0.4);
-}
-
-body.theme-cyberpunk {
-    --sakura-bg: #051a0e;
-    --sakura-card: rgba(12, 40, 24, 0.85);
-    --sakura-border: rgba(74, 222, 128, 0.3);
-    --sakura-pink: #4ade80;
-    --sakura-glow: rgba(74, 222, 128, 0.4);
-}
-
-body.theme-custom {
-    background-image: var(--custom-bg-img) !important;
-    background-size: cover !important;
-    background-position: center !important;
-    background-attachment: fixed !important;
+body.theme-dark {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --border-color: #333333;
+    --text-primary: #f1f3f4;
+    --text-secondary: #9aa0a6;
 }
 
 body {
-    background-color: var(--sakura-bg);
-    color: #fce7f3;
-    font-family: 'Zen Maru Gothic', sans-serif;
-    background-image: 
-        radial-gradient(circle at 10% 10%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(219, 39, 119, 0.06) 0%, transparent 40%);
-    background-attachment: fixed;
-    transition: background-color 0.3s ease;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Roboto', sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.font-jp { font-family: 'Yuji Mai', serif; }
-
-.japanese-watermark {
-    position: absolute;
-    font-family: 'Yuji Mai', serif;
-    color: rgba(244, 114, 182, 0.03);
-    user-select: none;
-    pointer-events: none;
-    z-index: 0;
-    line-height: 1;
+.google-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.glass-panel {
-    background: var(--sakura-card);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--sakura-border);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+.google-card:hover {
+    box-shadow: 0 1px 6px rgba(32,33,36,0.28);
 }
 
-.glass-panel-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+body.theme-dark .google-card:hover {
+    box-shadow: 0 1px 6px rgba(255,255,255,0.1);
 }
 
-.glass-panel-hover:hover {
-    border-color: rgba(244, 114, 182, 0.5);
-    box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.25), 0 8px 10px -6px rgba(236, 72, 153, 0.2);
-    transform: translateY(-3px);
+.google-input {
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.18);
+    border-radius: 24px;
+    border: 1px solid transparent;
 }
 
-.pink-glow-text { text-shadow: 0 0 12px rgba(244, 114, 182, 0.6); }
-
-.sakura-container {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 1; overflow: hidden;
+body.theme-dark .google-input {
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    background-color: #1e1e1e;
+    border-color: #333;
 }
 
-.petal {
-    position: absolute;
-    background: linear-gradient(135deg, #fbcfe8, #f472b6);
-    border-radius: 150% 0 150% 0;
-    opacity: 0.3;
-    animation: animate-petal 12s linear infinite;
+.google-input:focus-within {
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
 }
 
-@keyframes animate-petal {
-    0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0; }
-    10% { opacity: 0.4; }
-    90% { opacity: 0.4; }
-    100% { top: 110%; transform: translateX(120px) rotate(360deg); opacity: 0; }
+::-webkit-scrollbar { 
+    width: 8px; 
 }
 
-@keyframes pulse-live {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-}
-.live-dot { animation: pulse-live 2s infinite; }
-
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #110915; }
-::-webkit-scrollbar-thumb { background: #831843; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #be185d; }
-
-iframe { width: 100%; height: 100%; border: none; }
-
-.mini-player-active {
-    position: fixed !important;
-    bottom: 20px !important;
-    right: 20px !important;
-    width: 320px !important;
-    height: 180px !important;
-    z-index: 9999 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(236, 72, 153, 0.4) !important;
-    border-radius: 1rem !important;
-    overflow: hidden;
-    transition: all 0.3s ease-in-out;
+::-webkit-scrollbar-track { 
+    background: var(--bg-color); 
 }
 
-#intro-screen {
-    transition: opacity 0.8s ease, visibility 0.8s ease;
-}
-#intro-screen.fade-out {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+::-webkit-scrollbar-thumb { 
+    background: var(--border-color); 
+    border-radius: 4px; 
 }
 
-#activity-toast {
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-#activity-toast.toast-hidden {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-    pointer-events: none;
+iframe { 
+    width: 100%; 
+    height: 100%; 
+    border: none; 
 }
