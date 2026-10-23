@@ -197,7 +197,210 @@
         </div>
     </footer>
 
-    <!-- Wczytanie konfiguracji oraz logiki -->
+    <!-- Skrypty -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💤 SuzokuStream 💤</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col relative">
+
+    <!-- MODAL - Nickname -->
+    <div id="nickname-modal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+        <div class="google-card max-w-sm w-full p-6 text-center space-y-4 shadow-xl">
+            <div class="w-12 h-12 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-full flex items-center justify-center mx-auto">
+                <i class="fa-solid fa-user text-xl"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-bold">Witaj w SuzokuStream</h3>
+                <p class="text-xs text-gray-500 mt-1">Podaj swój pseudonim, aby kontynuować.</p>
+            </div>
+            <form id="nickname-form" class="space-y-3">
+                <input type="text" id="user-nick-input" required placeholder="Twój nick..." class="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 text-xs text-center focus:outline-none focus:border-black dark:focus:border-white bg-transparent">
+                <button type="submit" class="w-full bg-black text-white dark:bg-white dark:text-black font-medium py-2 rounded-lg text-xs transition-colors">Zapisz i Przejdź</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL - Ustawienia Strony -->
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black/50 z-[90] flex items-center justify-center p-4">
+        <div class="google-card max-w-lg w-full rounded-xl shadow-xl overflow-hidden relative">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                    <h3 class="text-sm font-bold uppercase">Ustawienia</h3>
+                </div>
+                <button id="close-settings-btn" class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5 text-xs">
+                <!-- Wybór Motywu -->
+                <div class="space-y-2">
+                    <label class="font-semibold block">Motyw Strony</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center justify-between p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <span class="font-medium">☀️ Jasny</span>
+                            <input type="radio" name="site_theme" value="light" class="accent-black">
+                        </label>
+                        <label class="flex items-center justify-between p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <span class="font-medium">🌙 Ciemny</span>
+                            <input type="radio" name="site_theme" value="dark" class="accent-black">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Autoplay -->
+                <div class="space-y-2 border-t border-gray-200 dark:border-gray-800 pt-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="font-semibold block">Automatyczne odtwarzanie (Autoplay)</label>
+                            <p class="text-[10px] text-gray-500">Automatycznie przechodź do kolejnego odcinka</p>
+                        </div>
+                        <input type="checkbox" id="autoplay-toggle" class="w-4 h-4 accent-black cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Gęstość Siatki -->
+                <div class="space-y-2 border-t border-gray-200 dark:border-gray-800 pt-4">
+                    <label class="font-semibold block">Rozmiar Kafelków Anime</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center justify-between p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <span class="font-medium">📱 Kompaktowe</span>
+                            <input type="radio" name="grid_density" value="compact" class="accent-black">
+                        </label>
+                        <label class="flex items-center justify-between p-2.5 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <span class="font-medium">🖼️ Duże</span>
+                            <input type="radio" name="grid_density" value="large" class="accent-black">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Resetuj dane -->
+                <div class="border-t border-gray-200 dark:border-gray-800 pt-4">
+                    <button id="reset-user-data-btn" class="w-full py-2 bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-lg font-bold hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors">
+                        <i class="fa-solid fa-trash mr-1"></i> Wyczyść zapamiętane dane i nick
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 bg-[var(--bg-color)]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-6">
+                <div id="logo-home-btn" class="flex items-center cursor-pointer select-none">
+                    <span class="text-2xl font-black tracking-tight">
+                        💤 SuzokuStream 💤
+                    </span>
+                </div>
+                
+                <nav class="hidden md:flex items-center gap-4 text-xs font-medium text-gray-600 dark:text-gray-400">
+                    <button id="nav-home-btn" class="hover:text-black dark:hover:text-white transition-colors py-2"><i class="fa-solid fa-magnifying-glass mr-1"></i> Baza Anime</button>
+                    <button id="nav-calendar-btn" class="hover:text-black dark:hover:text-white transition-colors py-2"><i class="fa-solid fa-calendar mr-1"></i> Kalendarz</button>
+                    <button id="nav-announcements-btn" class="hover:text-black dark:hover:text-white transition-colors py-2"><i class="fa-solid fa-newspaper mr-1"></i> Ogłoszenia</button>
+                </nav>
+            </div>
+
+            <!-- Pasek Wyszukiwania -->
+            <div class="flex-1 max-w-md mx-2">
+                <div class="relative google-input flex items-center px-3 py-1.5 border border-gray-200 dark:border-gray-700">
+                    <i class="fa-solid fa-magnifying-glass text-xs mr-2 text-gray-400"></i>
+                    <input type="text" id="search-input" placeholder="Szukaj anime..." 
+                        class="w-full text-xs placeholder-gray-400 bg-transparent focus:outline-none">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div id="user-profile-badge" class="hidden sm:flex items-center gap-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-100 px-3 py-1 rounded-full text-xs font-medium">
+                    <i class="fa-solid fa-circle-user text-sm text-gray-600 dark:text-gray-300"></i>
+                    <span id="nav-nick">...</span>
+                </div>
+
+                <a id="discord-link" href="https://discord.gg/UTDFC34jX" target="_blank" rel="noopener noreferrer" 
+                   class="text-gray-500 hover:text-black dark:hover:text-white text-sm p-2 transition-colors" title="Discord">
+                    <i class="fa-brands fa-discord"></i>
+                </a>
+
+                <button id="nav-settings-btn" class="text-gray-500 hover:text-black dark:hover:text-white text-sm p-2 transition-colors" title="Ustawienia">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- SECTION: Home -->
+        <section id="sec-home">
+            <div class="mb-4 pb-2 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <span class="text-xs text-gray-500">Katalog serii anime</span>
+                <div id="db-status" class="text-xs flex items-center gap-1.5 text-gray-400">
+                    <i class="fa-solid fa-spinner animate-spin"></i> Łączenie z bazą...
+                </div>
+            </div>
+
+            <div id="anime-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div class="col-span-full text-center py-12 text-gray-400 text-xs">Ładowanie wyników...</div>
+            </div>
+        </section>
+
+        <!-- SECTION: Details / Player -->
+        <section id="sec-details" class="hidden">
+            <button id="back-to-home-btn" class="mb-4 text-xs font-medium hover:underline flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left"></i> Wróć do bazy anime
+            </button>
+            <div id="details-content" class="google-card p-6"></div>
+        </section>
+
+        <!-- SECTION: Calendar -->
+        <section id="sec-calendar" class="hidden">
+            <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-gray-800">
+                Kalendarz Emisji Anime
+            </h2>
+            <div id="calendar-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- SECTION: Announcements -->
+        <section id="sec-announcements" class="hidden">
+            <h2 class="text-lg font-bold mb-4 pb-2 border-b border-gray-200 dark:border-gray-800">
+                Komunikaty i Ogłoszenia
+            </h2>
+            <div id="announcements-list" class="space-y-4"></div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500 space-y-1">
+            <p>Polska • Serwis Hobbystyczny SuzokuStream</p>
+            <p>© 2026 SuzokuStream Wszystkie prawa zastrzeżone.</p>
+        </div>
+    </footer>
+
+    <!-- Skrypty -->
     <script src="config.js"></script>
     <script src="app.js"></script>
 </body>
