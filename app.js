@@ -327,7 +327,14 @@ function playEpisodeByIndex(index) {
             }
         }
     } else {
-        container.innerHTML = `<iframe src="${rawUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        // Automatyczna zamiana linku DoodStream z /v/ na /e/
+        let embedUrl = rawUrl;
+        if (embedUrl.includes('dood') && embedUrl.includes('/v/')) {
+            embedUrl = embedUrl.replace('/v/', '/e/');
+        }
+
+        // Poprawka: Dodano klasy w-full h-full border-0, aby ramka wypełniła kontener
+        container.innerHTML = `<iframe src="${embedUrl}" class="w-full h-full border-0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
     }
 
     document.getElementById('prev-ep-btn').disabled = (currentEpisodeIndex === 0);
