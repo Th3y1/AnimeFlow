@@ -1,7 +1,11 @@
-let _supabase;
+// Klucze SUPABASE_URL, SUPABASE_ANON_KEY oraz ADMIN_PASSWORD są wczytywane z pliku config.js
+const { createClient } = supabase;
+const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let allAnimeData = [];
 let currentAnimeEpisodes = [];
 let currentEpisodeIndex = 0;
+let adminCurrentEpisodes = [];
 
 let currentUser = {
     nickname: localStorage.getItem('af_user_nick') || '',
@@ -13,43 +17,52 @@ let isAutoplay = localStorage.getItem('af_autoplay') === 'true';
 let gridDensity = localStorage.getItem('af_grid_density') || 'compact';
 
 window.onload = async () => {
-    if (typeof supabase !== 'undefined' && typeof SUPABASE_URL !== 'undefined') {
-        const { createClient } = supabase;
-        _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } else {
-        console.error("Brak konfiguracji Supabase lub biblioteki Supabase JS.");
-    }
-
     applyTheme(siteTheme);
     applyGridDensity(gridDensity);
     initSettingsUI();
     setupEventListeners();
     await checkUserRegistration();
     fetchAnime();
+    checkAdminAuth();
 };
 
 function setupEventListeners() {
+    // Nawigacja
     document.getElementById('logo-home-btn').addEventListener('click', () => showSection('home'));
     document.getElementById('nav-home-btn').addEventListener('click', () => showSection('home'));
     document.getElementById('nav-calendar-btn').addEventListener('click', () => showSection('calendar'));
     document.getElementById('nav-announcements-btn').addEventListener('click', () => showSection('announcements'));
+    document.getElementById('nav-admin-btn').addEventListener('click', () => showSection('admin'));
     document.getElementById('nav-settings-btn').addEventListener('click', toggleSettingsModal);
     document.getElementById('close-settings-btn').addEventListener('click', toggleSettingsModal);
+    document.getElementById('admin-home-btn').addEventListener('click', () => showSection('home'));
     document.getElementById('back-to-home-btn').addEventListener('click', () => showSection('home'));
 
+    // Wyszukiwarka
     document.getElementById('search-input').addEventListener('input', filterAnime);
 
+    // Formularze i Modale
     document.getElementById('nickname-form').addEventListener('submit', submitNickname);
     document.getElementById('autoplay-toggle').addEventListener('change', (e) => toggleAutoplay(e.target.checked));
     document.getElementById('reset-user-data-btn').addEventListener('click', resetUserData);
 
+    // Przełączniki motywu
     document.querySelectorAll('input[name="site_theme"]').forEach(radio => {
         radio.addEventListener('change', (e) => setTheme(e.target.value));
     });
 
+    // Przełączniki gęstości kafelków
     document.querySelectorAll('input[name="grid_density"]').forEach(radio => {
         radio.addEventListener('change', (e) => setGridDensity(e.target.value));
     });
+
+    // Zdarzenia Admina
+    document.getElementById('admin-login-form').addEventListener('submit', handleAdminLogin);
+    document.getElementById('admin-logout-btn').addEventListener('click', adminLogout);
+    document.getElementById('add-anime-form').addEventListener('submit', handleSaveAnime);
+    document.getElementById('cancel-admin-anime-btn').addEventListener('click', resetAdminForm);
+    document.getElementById('admin-anime-select').addEventListener('change', loadAdminEpisodes);
+    document.getElementById('add-episode-form').addEventListener('submit', handleAddEpisode);
 }
 
 function initSettingsUI() {
@@ -132,7 +145,7 @@ function toggleSettingsModal() {
 }
 
 function showSection(sectionId) {
-    ['home', 'details', 'calendar', 'announcements'].forEach(sec => {
+    ['home', 'details', 'calendar', 'announcements', 'admin'].forEach(sec => {
         const el = document.getElementById(`sec-${sec}`);
         if (el) el.classList.add('hidden');
     });
@@ -143,13 +156,13 @@ function showSection(sectionId) {
 async function fetchAnime() {
     const statusDiv = document.getElementById('db-status');
     try {
-        if (!_supabase) throw new Error("Supabase klient nie został zainicjalizowany.");
-
         let { data: anime, error } = await _supabase.from('anime').select('*').order('created_at', { ascending: false });
         if (error) throw error;
         
         allAnimeData = anime || [];
         renderAnimeGrid(allAnimeData);
+        populateAdminSelect();
+        renderAdminAnimeList();
         fetchAnnouncements();
         fetchCalendar();
         
@@ -185,7 +198,6 @@ function renderAnimeGrid(list) {
 
 async function fetchCalendar() {
     const cal = document.getElementById('calendar-list');
-    if (!_supabase) return;
     let { data: calendarItems } = await _supabase.from('calendar').select('*').order('created_at', { ascending: false });
 
     if (!calendarItems || calendarItems.length === 0) {
@@ -206,7 +218,6 @@ async function fetchCalendar() {
 
 async function fetchAnnouncements() {
     const container = document.getElementById('announcements-list');
-    if (!_supabase) return;
     let { data: announcements } = await _supabase.from('ogloszenia').select('*').order('created_at', { ascending: false });
     
     if (!announcements || announcements.length === 0) {
@@ -331,12 +342,7 @@ function playEpisodeByIndex(index) {
             }
         }
     } else {
-        let embedUrl = rawUrl;
-        if (embedUrl.includes('dood') && embedUrl.includes('/v/')) {
-            embedUrl = embedUrl.replace('/v/', '/e/');
-        }
-
-        container.innerHTML = `<iframe src="${embedUrl}" class="w-full h-full border-0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        container.innerHTML = `<iframe src="${rawUrl}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
     }
 
     document.getElementById('prev-ep-btn').disabled = (currentEpisodeIndex === 0);
@@ -378,4 +384,159 @@ function filterAnime() {
     const query = document.getElementById('search-input').value.toLowerCase();
     const filtered = allAnimeData.filter(item => item.title && item.title.toLowerCase().includes(query));
     renderAnimeGrid(filtered);
+}
+
+// --- FUNKCJE ADMINA (CRUD) ---
+
+function handleAdminLogin(e) {
+    e.preventDefault();
+    if (document.getElementById('admin-pass-input').value === ADMIN_PASSWORD) {
+        sessionStorage.setItem('isAdminLoggedIn', 'true');
+        checkAdminAuth();
+    } else {
+        alert('Nieprawidłowe hasło administracyjne!');
+    }
+}
+
+function checkAdminAuth() {
+    const isLoggedIn = sessionStorage.getItem('isAdminLoggedIn') === 'true';
+    if (isLoggedIn) {
+        document.getElementById('admin-auth').classList.add('hidden');
+        document.getElementById('admin-dashboard').classList.remove('hidden');
+    } else {
+        document.getElementById('admin-auth').classList.remove('hidden');
+        document.getElementById('admin-dashboard').classList.add('hidden');
+    }
+}
+
+function adminLogout() {
+    sessionStorage.removeItem('isAdminLoggedIn');
+    checkAdminAuth();
+}
+
+function populateAdminSelect() {
+    const select = document.getElementById('admin-anime-select');
+    select.innerHTML = '<option value="" class="dark:bg-gray-900">-- Wybierz Anime --</option>' + 
+        allAnimeData.map(a => `<option value="${a.id}" class="dark:bg-gray-900">${a.title}</option>`).join('');
+}
+
+function renderAdminAnimeList() {
+    const list = document.getElementById('admin-anime-list');
+    if (allAnimeData.length === 0) {
+        list.innerHTML = '<p class="text-gray-400 py-2">Brak wpisów.</p>';
+        return;
+    }
+
+    list.innerHTML = allAnimeData.map(a => `
+        <div class="flex items-center justify-between py-2">
+            <div class="flex items-center gap-3">
+                <img src="${a.image_url}" class="w-8 h-12 object-cover rounded border border-gray-200 dark:border-gray-700">
+                <div>
+                    <p class="font-bold">${a.title}</p>
+                    <p class="text-[10px] text-gray-500">${a.category || 'Brak kat.'} | Ocena: ${a.rating || '-'}</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="editAnime(${a.id})" class="border border-gray-300 dark:border-gray-700 px-2.5 py-1 rounded text-xs font-semibold hover:bg-gray-100 dark:hover:bg-gray-800">Edytuj</button>
+                <button onclick="deleteAnime(${a.id})" class="bg-red-600 text-white px-2.5 py-1 rounded text-xs font-semibold hover:bg-red-700">Usuń</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function handleSaveAnime(e) {
+    e.preventDefault();
+    const id = document.getElementById('adm-id').value;
+    const title = document.getElementById('adm-title').value;
+    const image_url = document.getElementById('adm-image').value;
+    const status = document.getElementById('adm-status').value;
+    const category = document.getElementById('adm-category').value;
+    const rating = parseFloat(document.getElementById('adm-rating').value) || null;
+
+    if (id) {
+        await _supabase.from('anime').update({ title, image_url, status, category, rating }).eq('id', id);
+    } else {
+        await _supabase.from('anime').insert([{ title, image_url, status, category, rating }]);
+    }
+
+    resetAdminForm();
+    fetchAnime();
+}
+
+function editAnime(id) {
+    const item = allAnimeData.find(a => a.id === id);
+    if (!item) return;
+
+    document.getElementById('adm-id').value = item.id;
+    document.getElementById('adm-title').value = item.title;
+    document.getElementById('adm-image').value = item.image_url;
+    document.getElementById('adm-status').value = item.status || '';
+    document.getElementById('adm-category').value = item.category || '';
+    document.getElementById('adm-rating').value = item.rating || '';
+    document.getElementById('admin-form-title').innerText = "Edytuj Anime";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function deleteAnime(id) {
+    if (!confirm('Czy na pewno chcesz usunąć to anime?')) return;
+    await _supabase.from('anime').delete().eq('id', id);
+    fetchAnime();
+}
+
+function resetAdminForm() {
+    document.getElementById('adm-id').value = '';
+    document.getElementById('add-anime-form').reset();
+    document.getElementById('admin-form-title').innerText = "Dodaj nowe Anime";
+}
+
+async function loadAdminEpisodes() {
+    const animeId = document.getElementById('admin-anime-select').value;
+    const container = document.getElementById('episode-form-container');
+
+    if (!animeId) {
+        container.classList.add('hidden');
+        return;
+    }
+
+    container.classList.remove('hidden');
+    let { data: episodes } = await _supabase.from('episodes').select('*').eq('anime_id', animeId).order('episode_number', { ascending: true });
+    adminCurrentEpisodes = episodes || [];
+
+    renderAdminEpisodesList();
+}
+
+function renderAdminEpisodesList() {
+    const list = document.getElementById('admin-episodes-list');
+    if (adminCurrentEpisodes.length === 0) {
+        list.innerHTML = '<p class="text-gray-400">Brak dodanych odcinków.</p>';
+        return;
+    }
+
+    list.innerHTML = adminCurrentEpisodes.map(ep => `
+        <div class="flex items-center justify-between border border-gray-200 dark:border-gray-800 p-2 rounded">
+            <span class="font-medium">Odcinek ${ep.episode_number} [${ep.lang || 'PL'}]: ${ep.title || 'Bez tytułu'}</span>
+            <button onclick="deleteEpisode(${ep.id})" class="text-red-500 font-bold px-2 hover:underline">Usuń</button>
+        </div>
+    `).join('');
+}
+
+async function handleAddEpisode(e) {
+    e.preventDefault();
+    const anime_id = document.getElementById('admin-anime-select').value;
+    const episode_number = parseInt(document.getElementById('ep-number').value);
+    const lang = document.getElementById('ep-lang').value;
+    const title = document.getElementById('ep-title').value;
+    const video_url = document.getElementById('ep-url').value;
+
+    await _supabase.from('episodes').insert([{ anime_id, episode_number, lang, title, video_url }]);
+    document.getElementById('ep-number').value = '';
+    document.getElementById('ep-title').value = '';
+    document.getElementById('ep-url').value = '';
+    loadAdminEpisodes();
+}
+
+async function deleteEpisode(id) {
+    if (!confirm('Czy na pewno chcesz usunąć ten odcinek?')) return;
+    await _supabase.from('episodes').delete().eq('id', id);
+    loadAdminEpisodes();
 }
