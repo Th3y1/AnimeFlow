@@ -1,6 +1,4 @@
-const { createClient } = supabase;
-const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+let _supabase;
 let allAnimeData = [];
 let currentAnimeEpisodes = [];
 let currentEpisodeIndex = 0;
@@ -15,6 +13,14 @@ let isAutoplay = localStorage.getItem('af_autoplay') === 'true';
 let gridDensity = localStorage.getItem('af_grid_density') || 'compact';
 
 window.onload = async () => {
+    // Inicjalizacja Supabase po wczytaniu config.js
+    if (typeof supabase !== 'undefined' && typeof SUPABASE_URL !== 'undefined') {
+        const { createClient } = supabase;
+        _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+        console.error("Brak konfiguracji Supabase lub biblioteki Supabase JS.");
+    }
+
     applyTheme(siteTheme);
     applyGridDensity(gridDensity);
     initSettingsUI();
@@ -143,6 +149,8 @@ function showSection(sectionId) {
 async function fetchAnime() {
     const statusDiv = document.getElementById('db-status');
     try {
+        if (!_supabase) throw new Error("Supabase klient nie został zainicjalizowany.");
+
         let { data: anime, error } = await _supabase.from('anime').select('*').order('created_at', { ascending: false });
         if (error) throw error;
         
@@ -183,6 +191,7 @@ function renderAnimeGrid(list) {
 
 async function fetchCalendar() {
     const cal = document.getElementById('calendar-list');
+    if (!_supabase) return;
     let { data: calendarItems } = await _supabase.from('calendar').select('*').order('created_at', { ascending: false });
 
     if (!calendarItems || calendarItems.length === 0) {
@@ -203,6 +212,7 @@ async function fetchCalendar() {
 
 async function fetchAnnouncements() {
     const container = document.getElementById('announcements-list');
+    if (!_supabase) return;
     let { data: announcements } = await _supabase.from('ogloszenia').select('*').order('created_at', { ascending: false });
     
     if (!announcements || announcements.length === 0) {
