@@ -13,7 +13,6 @@ let isAutoplay = localStorage.getItem('af_autoplay') === 'true';
 let gridDensity = localStorage.getItem('af_grid_density') || 'compact';
 
 window.onload = async () => {
-    // Inicjalizacja Supabase po wczytaniu config.js
     if (typeof supabase !== 'undefined' && typeof SUPABASE_URL !== 'undefined') {
         const { createClient } = supabase;
         _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -30,7 +29,6 @@ window.onload = async () => {
 };
 
 function setupEventListeners() {
-    // Nawigacja
     document.getElementById('logo-home-btn').addEventListener('click', () => showSection('home'));
     document.getElementById('nav-home-btn').addEventListener('click', () => showSection('home'));
     document.getElementById('nav-calendar-btn').addEventListener('click', () => showSection('calendar'));
@@ -39,20 +37,16 @@ function setupEventListeners() {
     document.getElementById('close-settings-btn').addEventListener('click', toggleSettingsModal);
     document.getElementById('back-to-home-btn').addEventListener('click', () => showSection('home'));
 
-    // Wyszukiwarka
     document.getElementById('search-input').addEventListener('input', filterAnime);
 
-    // Formularze i Modale
     document.getElementById('nickname-form').addEventListener('submit', submitNickname);
     document.getElementById('autoplay-toggle').addEventListener('change', (e) => toggleAutoplay(e.target.checked));
     document.getElementById('reset-user-data-btn').addEventListener('click', resetUserData);
 
-    // Przełączniki motywu
     document.querySelectorAll('input[name="site_theme"]').forEach(radio => {
         radio.addEventListener('change', (e) => setTheme(e.target.value));
     });
 
-    // Przełączniki gęstości kafelków
     document.querySelectorAll('input[name="grid_density"]').forEach(radio => {
         radio.addEventListener('change', (e) => setGridDensity(e.target.value));
     });
